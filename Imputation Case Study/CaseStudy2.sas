@@ -6,8 +6,8 @@
 
 * Import csv data file ;
 data CARS;
-infile '/folders/myshortcuts/SAS/carmpgdata_2.csv' dlm=',' DSD firstobs=2;
-*infile '/home/cboomhower0/sasuser.v94/MSDS7333/carmpgdata_2.csv' dlm=',' DSD firstobs=2;
+*infile '/folders/myshortcuts/SAS/carmpgdata_2.csv' dlm=',' DSD firstobs=2;
+infile '/home/cboomhower0/sasuser.v94/MSDS7333/carmpgdata_2.csv' dlm=',' DSD firstobs=2;
 * SAS does not properly recognize empty values for delimited data unless you use the dsd option. 
 Need to use the dsd option on the infile statement if two consecutive delimiters are used to indicate 
 missing values (e.g., two consecutive commas, two consecutive tabs). ;
@@ -38,18 +38,18 @@ var MPG CYLINDERS SIZE HP WEIGHT ACCEL ENG_TYPE;
 run;
 
 * Visualize missing data locations;
-proc iml;
-	varNames = {mpg cylinders size hp weight accel eng_type};
-	use CARS;                         /* open data set */
-	read all var varNames into X;              /* create numeric data matrix, X */
-	close CARS;
+*proc iml;
+	*varNames = {mpg cylinders size hp weight accel eng_type};
+	*use CARS;                         /* open data set */
+	*read all var varNames into X;              /* create numeric data matrix, X */
+	*close CARS;
 
-	Count = countmiss(X,"row");            /* count missing values for each obs */
-	missRows = loc(Count > 0);                  /* which rows are missing? */
+	*Count = countmiss(X,"row");            /* count missing values for each obs */
+	*missRows = loc(Count > 0);                  /* which rows are missing? */
 
-	ods graphics / width=400px height=600px;
-	Y = X[missRows,];              /* extract missing rows   */
-	call HeatmapDisc( cmiss(Y) )   /* CMISS returns 0/1 matrix */
+	*ods graphics / width=400px height=600px;
+	*Y = X[missRows,];              /* extract missing rows   */
+	*call HeatmapDisc( cmiss(Y) )   /* CMISS returns 0/1 matrix */
 	     displayoutlines=0 
 	     colorramp={white black}
 	     xvalues=VarNames          /* variable names along bottom */
@@ -76,7 +76,7 @@ proc print data=miout; run;
 * Analyze Multiple Imputation (MI) Data ;
 title "Linear Regression on Multiple Imputation (MI) Data";
 proc reg data=miout outest=outreg covout;
-model mpg = CYLINDERS SIZE HP WEIGHT ACCEL ENG_TYPE;
+model mpg = CYLINDERS SIZE HP WEIGHT;
 by _Imputation_;
 run;
 * Print Multiple Imputation (MI) data set output ;
@@ -86,11 +86,11 @@ proc print data=outreg; run;
 * Multiple Imputation Results Analysis ;
 title "Multiple Imputation (MI) Results Analysis";
 proc mianalyze data=outreg;
-modeleffects CYLINDERS SIZE HP WEIGHT ACCEL ENG_TYPE Intercept;
+modeleffects CYLINDERS SIZE HP WEIGHT Intercept;
 run;
 
 * Analyze complete listwise data ;
 title "Predicting MPG on Non Imputed Data (data with missing values) - Listwise Deletion";
 proc reg data=CARS;
- model mpg = CYLINDERS SIZE HP WEIGHT ACCEL ENG_TYPE;
+ model mpg = CYLINDERS SIZE HP WEIGHT;
 run;

@@ -4,23 +4,10 @@
  * MSDS 7333, September 6, 2017
  */
 
-
-/*
- * PROC IMPORT DATAFILE='/home/cboomhower0/sasuser.v94/MSDS7333/carmpgdata_2.txt'
- * OUT=CARS
- * DBMS=DLM
- * REPLACE;
- * delimiter='09'x;
- * RUN;
- * /* Review raw data */
- * PROC PRINT DATA=CARS;
- * RUN;
- */
-
-
 * Import csv data file ;
 data CARS;
 infile '/folders/myshortcuts/SAS/carmpgdata_2.csv' dlm=',' DSD firstobs=2;
+*infile '/home/cboomhower0/sasuser.v94/MSDS7333/carmpgdata_2.csv' dlm=',' DSD firstobs=2;
 * SAS does not properly recognize empty values for delimited data unless you use the dsd option. 
 Need to use the dsd option on the infile statement if two consecutive delimiters are used to indicate 
 missing values (e.g., two consecutive commas, two consecutive tabs). ;
@@ -33,7 +20,7 @@ run;
 * Render scatterplot matrix and correlation matrix;
 * aka Descriptive stats (EDA) for non-imputed data ;
 title "Descriptive Stats /EDA for Non-imputed Data";
-proc corr data=CARS PLOTS=MATRIX(HISTOGRAM NVAR=8); 
+proc corr data=CARS;
 * Important Note: PROC CORR will not perform listwise unless NOMISS specified ;
 var MPG CYLINDERS SIZE HP WEIGHT ACCEL ENG_TYPE;
 run;
@@ -50,8 +37,8 @@ proc mi data=CARS nimpute=0;
 var MPG CYLINDERS SIZE HP WEIGHT ACCEL ENG_TYPE;
 run;
 
-* Visualize missing data patterns;
-PROC IML;
+* Visualize missing data locations;
+proc iml;
 	varNames = {mpg cylinders size hp weight accel eng_type};
 	use CARS;                         /* open data set */
 	read all var varNames into X;              /* create numeric data matrix, X */
@@ -67,7 +54,7 @@ PROC IML;
 	     colorramp={white black}
 	     xvalues=VarNames          /* variable names along bottom */
 	     yvalues=missRows          /* use nonmissing rows numbers as labels */
-	     showlegend=0 title="Missing Value Pattern";
+	     showlegend=0 title="Missing Value Locations";
 
 * Descriptive stats for listwise complete data ;
 title "EDA on Listwise Complete Data";
@@ -107,24 +94,3 @@ title "Predicting MPG on Non Imputed Data (data with missing values) - Listwise 
 proc reg data=CARS;
  model mpg = CYLINDERS SIZE HP WEIGHT ACCEL ENG_TYPE;
 run;
-
-/* Perform Multiple Imputation to replace missing values */
-PROC MI DATA=CARS
-OUT=MIOUT SEED=123 NIMPUTE=5;
-VAR mpg cylinders size hp weight accel eng_type;
-RUN;
-
-PROC PRINT DATA=MIOUT;
-RUN;
-
-/* Regression on each imputed dataset */
-PROC REG DATA = MIOUT OUTEST = outreg COVOUT; 
-	MODEL mpg = cylinders size hp weight accel eng_type; 
-	BY _Imputation_; 
-RUN;
-
-/* Combine Multiple Imputation results */
-TITLE 'Predicting MPG - Multiple Imputation';
-PROC MIANALYZE data = outreg; 
-	MODELEFFECTS cylinders size hp weight accel eng_type Intercept; 
-RUN;

@@ -92,5 +92,5 @@ run;
 * Analyze complete listwise data ;
 title "Predicting MPG on Non Imputed Data (data with missing values) - Listwise Deletion";
 proc reg data=CARS;
- model mpg = CYLINDERS SIZE HP WEIGHT;
+ model mpg = CYLINDERS SIZE HP WEIGHT / CLB; /* Display 95% CI */
 run;

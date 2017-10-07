@@ -5,18 +5,35 @@ output: html_notebook
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+Try executing a chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+##Abstract
+
+##Introduction
+
+##Literature Review
+
+##Methods
+
+####Data Import
 ```{r}
-
+# Configure number format to two decimal places only
 options(digits = 2)
 
+# Import offline data and explore data
 txt = readLines("Data/offline.final.trace.txt")
 
-sum(substr(txt, 1, 1) == "#")
+paste("Total # of lines in offline data =",length(txt))
+paste("Total # of comments in offline data =", sum(substr(txt, 1, 1) == "#")) #Check number of comment lines in offline data
+paste("Total # of non-comment lines =", length(txt) - sum(substr(txt, 1, 1) == "#"))
+```
+####Data Cleanup
 
-length(txt)
-
+```{r}
 strsplit(txt[4], ";")[[1]]
 
 tokens = strsplit(txt[4], "[;=,]")[[1]]
@@ -49,9 +66,13 @@ sapply(tmp, nrow)
 
 offline = as.data.frame(do.call("rbind", tmp))
 dim(offline)
+```
 
+```{r}
 lines = txt[ substr(txt, 1, 1) != "#" ]
-tmp = lapply(lines, processLine)
+
+# Following line expected to throw warnings since one of the positions contains no signal data; commenting out since this issue is addressed via the return(NULL) statement in the updated processLine function in this chunk
+#tmp = lapply(lines, processLine)
 
 processLine = function(x)
 {
@@ -71,7 +92,10 @@ offline = as.data.frame(do.call("rbind", tmp),
                         stringsAsFactors = FALSE)
 
 dim(offline)
+```
 
+
+```{r}
 names(offline) = c("time", "scanMac", "posX", "posY", "posZ", 
                    "orientation", "mac", "signal", 
                    "channel", "type")
@@ -96,28 +120,29 @@ summary(offline[, numVars])
                 as.factor))
 
 offline = offline[ , !(names(offline) %in% c("scanMac", "posZ"))]
+```
 
+#####EDA - Orientation
+
+```{r}
 length(unique(offline$orientation))
 
-plot(ecdf(offline$orientation))
-
-pdf(file = "Geo_ECDFOrientation.pdf", width = 10, height = 7)
+#pdf(file = "Geo_ECDFOrientation.pdf", width = 10, height = 7)
 oldPar = par(mar = c(4, 4, 1, 1))
 plot(ecdf(offline$orientation), pch = 19, cex = 0.3,
      xlim = c(-5, 365), axes = FALSE,
      xlab = "orientation", ylab = "Empirical CDF", main = "")
-box()
 axis(2)
 axis(side = 1, at = seq(0, 360, by = 45))
 par(oldPar)
-dev.off()
+#dev.off()
 
-pdf(file = "Geo_DensityOrientation.pdf", width = 10, height = 5)
-oldPar = par(mar = c(4, 4, 1, 1))
-plot(density(offline$orientation, bw = 2), 
- xlab = "orientation", main = "")
-par(oldPar)
-dev.off()
+# pdf(file = "Geo_DensityOrientation.pdf", width = 10, height = 5)
+# oldPar = par(mar = c(4, 4, 1, 1))
+# plot(density(offline$orientation, bw = 2), 
+#  xlab = "orientation", main = "")
+# par(oldPar)
+# dev.off()
 
 roundOrientation = function(angles) {
   refs = seq(0, by = 45, length  = 9)
@@ -127,12 +152,17 @@ roundOrientation = function(angles) {
 
 offline$angle = roundOrientation(offline$orientation)
 
-pdf(file = "Geo_BoxplotAngle.pdf", width = 10)
+#pdf(file = "Geo_BoxplotAngle.pdf", width = 10)
 oldPar = par(mar = c(4, 4, 1, 1))
-
+with(offline, boxplot(orientation ~ angle,
+    xlab = "nearest 45 degree angle",
+    ylab="orientation"))
 par(oldPar)
-dev.off()
+#dev.off()
+```
+#####EDA - MAC Addresses
 
+```{r}
 c(length(unique(offline$mac)), length(unique(offline$channel)))
 
 table(offline$mac)
@@ -144,7 +174,10 @@ macChannel = with(offline, table(mac, channel))
 apply(macChannel, 1, function(x) sum(x > 0))
 
 offline = offline[ , "channel" != names(offline)]
+```
+#####EDA - Hand-Held Device Position
 
+```{r}
 locDF = with(offline, 
              by(offline, list(posX, posY), function(x) x))
 length(locDF)
@@ -168,7 +201,7 @@ dim(locCounts)
 
 locCounts[ , 1:8]
 
-pdf(file = "Geo_XYByCount.pdf", width = 10)
+#pdf(file = "Geo_XYByCount.pdf", width = 10)
 oldPar = par(mar = c(3.1, 3.1, 1, 1))
 
 locCounts = t(locCounts)
@@ -176,8 +209,11 @@ plot(locCounts, type = "n", xlab = "", ylab = "")
 text(locCounts, labels = locCounts[,3], cex = .8, srt = 45)
 
 par(oldPar)
-dev.off()
+#dev.off()
+```
 
+#####Perform cleanup as function
+```{r}
 readData = 
   function(filename = 'Data/offline.final.trace.txt', 
            subMacs = c("00:0f:a3:39:e1:c0", "00:0f:a3:39:dd:cd", "00:14:bf:b1:97:8a",
@@ -222,10 +258,17 @@ readData =
 offlineRedo = readData()
 
 identical(offline, offlineRedo)
+```
 
-pdf(file = "Geo_BoxplotSignalByMacAngle.pdf", width = 7)
-oldPar = par(mar = c(3.1, 3, 1, 1))
+**Breakdown methods for actual analysis here, before moving into Results section below**
 
+**Still need to split up chunk below**
+
+##Results
+
+####Signal Strength EDA
+
+```{r}
 library(lattice)
 bwplot(signal ~ factor(angle) | mac, data = offline, 
        subset = posX == 2 & posY == 12 
@@ -647,6 +690,4 @@ predXY = function(newSignals, newAngles, trainData,
 }
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+##Discussion and Future Works

@@ -11,6 +11,19 @@ Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by press
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
 
+##Outline
+Abstract - Fisher
+Intro - Fisher
+Lit Review - Fisher
+Methods - Fisher
+Results:
+1. Data clean up & EDA (MAC address EDA, orientation, etc.) - Cory
+2. Signal strength analysis - Cory
+3. KNN average weighting - Chris/Frye
+4. KNN distance weighting - Chris/Frye
+5. KNN comparison - Chris/Frye
+Discussion & Future Works - Chris/Frye
+
 ##Abstract
 
 ##Introduction
@@ -18,6 +31,12 @@ When you save the notebook, an HTML file containing the code and output will be 
 ##Literature Review
 
 ##Methods
+1. Data clean up & EDA (MAC address EDA, orientation, etc.)
+2. Signal strength analysis
+3. KNN average weighting
+4. KNN distance weighting
+5. KNN comparison
+
 
 ####Data Import
 ```{r}

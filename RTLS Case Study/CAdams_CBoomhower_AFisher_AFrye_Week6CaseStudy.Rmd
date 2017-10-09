@@ -17,11 +17,13 @@ Intro - Fisher
 Lit Review - Fisher
 Methods - Fisher
 Results:
+
 1. Data clean up & EDA (MAC address EDA, orientation, etc.) - Cory
 2. Signal strength analysis - Cory
 3. KNN average weighting - Chris/Frye
 4. KNN distance weighting - Chris/Frye
 5. KNN comparison - Chris/Frye
+
 Discussion & Future Works - Chris/Frye
 
 ##Abstract
@@ -42,9 +44,12 @@ Discussion & Future Works - Chris/Frye
 ```{r}
 # Configure number format to two decimal places only
 options(digits = 2)
+
 library(formattable)
 library(lattice)
 library(fields)
+
+seed = 123
 
 # Import offline data and explore data
 txt = readLines("Data/offline.final.trace.txt")
@@ -451,6 +456,7 @@ posXY.unique <- length(unique(online$posXY))
 We have ```r posXY.unique``` unique test locations available in the online dataset.
 
 ```{r}
+set.seed(seed = seed)
 # Number of signal strengths recorded at each location
 tabonlineXYA = table(online$posXY, online$angle)
 tabonlineXYA[sample(1:nrow(tabonlineXYA), 10), ]
@@ -479,30 +485,6 @@ onlineSummary = do.call("rbind", byLoc)
 head(onlineSummary)
 ```
 
-```{r}
-# m = 3; angleNewObs = 230
-# refs = seq(0, by = 45, length  = 8)
-# nearestAngle = roundOrientation(angleNewObs)
-#   
-# if (m %% 2 == 1) {
-#   angles = seq(-45 * (m - 1) /2, 45 * (m - 1) /2, length = m)
-# } else {
-#   m = m + 1
-#   angles = seq(-45 * (m - 1) /2, 45 * (m - 1) /2, length = m)
-#   if (sign(angleNewObs - nearestAngle) > -1) 
-#     angles = angles[ -1 ]
-#   else 
-#     angles = angles[ -m ]
-# }
-# angles = angles + nearestAngle
-# angles[angles < 0] = angles[ angles < 0 ] + 360
-# angles[angles > 360] = angles[ angles > 360 ] - 360
-```
-
-
-```{r}
-# offlineSubset = offlineSummary[ offlineSummary$angle %in% angles, ]
-```
 
 
 ```{r}
@@ -651,13 +633,17 @@ SSE <- sapply(list(estXYk1, estXYk3), calcError, actualXY)
 $k_1 SSE =$```r SSE[1]``` and $k_3 SSE =$ ```r SSE[2]```
 
 ```{r}
+set.seed(seed = seed)
+
 v = 11
 permuteLocs = sample(unique(offlineSummary$posXY))
 permuteLocs = matrix(permuteLocs, ncol = v, 
                      nrow = floor(length(permuteLocs)/v))
 
 onlineFold = subset(offlineSummary, posXY %in% permuteLocs[ , 1])
+```
 
+```{r}
 head(onlineFold)
 onlineFold.ul <- nrow(unique(onlineFold[,2:3]))
 ```
@@ -668,6 +654,9 @@ reshapeSS = function(data, varSignal = "signal",
                      keepVars = c("posXY", "posX","posY"),
                      sampleAngle = FALSE, 
                      refs = seq(0, 315, by = 45)) {
+    
+  set.seed(seed = seed)
+    
   byLocation =
     with(data, by(data, list(posXY), 
                   function(x) {
@@ -684,27 +673,20 @@ reshapeSS = function(data, varSignal = "signal",
   newDataSS = do.call("rbind", byLocation)
   return(newDataSS)
 }
+```
 
+
+```{r}
 offline = offline[ offline$mac != "00:0f:a3:39:dd:cd", ] #Look at all but MAC 00:0f:a3:39:dd:cd
 
 keepVars = c("posXY", "posX","posY", "orientation", "angle")
 
 onlineCVSummary = reshapeSS(offline, keepVars = keepVars, 
                             sampleAngle = TRUE)
+```
 
-onlineFold = subset(onlineCVSummary, 
-                    posXY %in% permuteLocs[ , 1])
 
-offlineFold = subset(offlineSummary,
-                     posXY %in% permuteLocs[ , -1])
-
-estFold = predXY(newSignals = onlineFold[ , 6:11], 
-                 newAngles = onlineFold[ , 4], 
-                 offlineFold, numAngles = 3, k = 3)
-
-actualFold = onlineFold[ , c("posX", "posY")]
-calcError(estFold, actualFold)
-
+```{r}
 K = 20
 err = rep(0, K)
 
@@ -722,8 +704,10 @@ for (j in 1:v) {
     err[k] = err[k] + calcError(estFold, actualFold)
   }
 }
+```
 
-#pdf(file = "Geo_CVChoiceOfK.pdf", width = 10, height = 6)
+
+```{r}
 oldPar = par(mar = c(4, 3, 1, 1))
 plot(y = err, x = (1:K),  type = "l", lwd= 2,
      ylim = c(1200, 2100),
@@ -737,36 +721,22 @@ segments(x0 = 0, x1 = kMin, y0 = rmseMin, col = gray(0.4),
 segments(x0 = kMin, x1 = kMin, y0 = 1100,  y1 = rmseMin, 
          col = grey(0.4), lty = 2, lwd = 2)
 
-#mtext(kMin, side = 1, line = 1, at = kMin, col = grey(0.4))
+mtext(kMin, side = 1, line = 1, at = kMin, col = grey(0.4))
 text(x = kMin - 2, y = rmseMin + 40, 
      label = as.character(round(rmseMin)), col = grey(0.4))
 par(oldPar)
-#dev.off()
-
-estXYk5 = predXY(newSignals = onlineSummary[ , 6:11], 
-                 newAngles = onlineSummary[ , 4], 
-                 offlineSummary, numAngles = 3, k = 5)
-
-calcError(estXYk5, actualXY)
-
-predXY = function(newSignals, newAngles, trainData, 
-                  numAngles = 1, k = 3){
-  
-  closeXY = list(length = nrow(newSignals))
-  
-  for (i in 1:nrow(newSignals)) {
-    trainSS = selectTrain(newAngles[i], trainData, m = numAngles)
-    closeXY[[i]] = findNN(newSignal = as.numeric(newSignals[i, ]),
-                           trainSS)
-  }
-
-  estXY = lapply(closeXY, function(x)
-                            sapply(x[ , 2:3], 
-                                    function(x) mean(x[1:k])))
-  estXY = do.call("rbind", estXY)
-  return(estXY)
-}
 ```
+
+Using $kmin =$ ```r kMin``` going forward (different from book's k=5 due to sampling during *offlineSummary*, *onlineCVSummary*, and *permuteLocs* computation)
+```{r}
+estXYk4 = predXY(newSignals = onlineSummary[ , 6:11], 
+                 newAngles = onlineSummary[ , 4], 
+                 offlineSummary, numAngles = 3, k = kMin)
+
+SSE.k4 <- calcError(estXYk4, actualXY)
+```
+
+$k_4 SSE =$```r SSE.k4``` is less than our previous reviews of $k_1 SSE$ and $k_3 SSE$ at ```r SSE[1]``` and ```r SSE[2]``` respectively.
 
 ####KNN Distance Weighting
 *Remove as much code as needed since only weighting modification needed*
@@ -877,10 +847,7 @@ reshapeSS = function(data, varSignal = "signal",
   newDataSS = do.call("rbind", byLocation)
   return(newDataSS)
 }
-```
 
-
-```{r}
 offline = offline[ offline$mac != "00:0f:a3:39:dd:cd", ]
 
 keepVars = c("posXY", "posX","posY", "orientation", "angle")

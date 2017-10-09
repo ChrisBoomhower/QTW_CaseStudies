@@ -313,7 +313,7 @@ densityplot( ~ signal | mac + factor(angle), data = offline,
 par(oldPar)
 #dev.off()
 
-#offline = offline[ offline$mac != "00:0f:a3:39:dd:cd", ]
+offline = offline[ offline$mac != "00:0f:a3:39:dd:cd", ]
 
 offline$posXY = paste(offline$posX, offline$posY, sep = "-")
 
@@ -435,18 +435,32 @@ dev.off()
 
 ####KNN Average Weighting
 
+$Euclidean Distance =\sqrt{(S_1^*-S_1)^2 + ...+ (S_6^*-S_6)^2}$
+
+"$S_i$ is the signal strength measured between the hand-held device and the $i$-th access point for a training observation taken at some specified location, and $S_1^*$ is the signal measured between the same access point and our new point whose $(x, y)$ values we are trying to predict
+
 ```{r}
 macs = unique(offlineSummary$mac)
 online = readData("Data/online.final.trace.txt", subMacs = macs)
 
 online$posXY = paste(online$posX, online$posY, sep = "-")
 
-paste(length(unique(online$posXY)), "unique test locations")
+posXY.unique <- length(unique(online$posXY))
+```
 
+We have ```r posXY.unique``` unique test locations available in the online dataset.
+
+```{r}
 # Number of signal strengths recorded at each location
 tabonlineXYA = table(online$posXY, online$angle)
-tabonlineXYA[1:6, ]
+tabonlineXYA[sample(1:nrow(tabonlineXYA), 10), ]
+```
 
+Sampling of tallies indicate measurements taken at single orientation for each location
+
+"Organize the data so that we have 6 columns of signal strengths, i.e., one for each of the access points. We summarize the online data into this format, providing the average signal strength at each location."
+
+```{r}
 keepVars = c("posXY", "posX","posY", "orientation", "angle")
 byLoc = with(online, 
              by(online, list(posXY), 
@@ -461,32 +475,37 @@ byLoc = with(online,
 onlineSummary = do.call("rbind", byLoc)  
 
 #dim(onlineSummary)
-
 #names(onlineSummary)
+head(onlineSummary)
 ```
 
 ```{r}
-m = 3; angleNewObs = 230
-refs = seq(0, by = 45, length  = 8)
-nearestAngle = roundOrientation(angleNewObs)
-  
-if (m %% 2 == 1) {
-  angles = seq(-45 * (m - 1) /2, 45 * (m - 1) /2, length = m)
-} else {
-  m = m + 1
-  angles = seq(-45 * (m - 1) /2, 45 * (m - 1) /2, length = m)
-  if (sign(angleNewObs - nearestAngle) > -1) 
-    angles = angles[ -1 ]
-  else 
-    angles = angles[ -m ]
-}
-angles = angles + nearestAngle
-angles[angles < 0] = angles[ angles < 0 ] + 360
-angles[angles > 360] = angles[ angles > 360 ] - 360
+# m = 3; angleNewObs = 230
+# refs = seq(0, by = 45, length  = 8)
+# nearestAngle = roundOrientation(angleNewObs)
+#   
+# if (m %% 2 == 1) {
+#   angles = seq(-45 * (m - 1) /2, 45 * (m - 1) /2, length = m)
+# } else {
+#   m = m + 1
+#   angles = seq(-45 * (m - 1) /2, 45 * (m - 1) /2, length = m)
+#   if (sign(angleNewObs - nearestAngle) > -1) 
+#     angles = angles[ -1 ]
+#   else 
+#     angles = angles[ -m ]
+# }
+# angles = angles + nearestAngle
+# angles[angles < 0] = angles[ angles < 0 ] + 360
+# angles[angles > 360] = angles[ angles > 360 ] - 360
+```
 
-offlineSubset = 
-  offlineSummary[ offlineSummary$angle %in% angles, ]
 
+```{r}
+# offlineSubset = offlineSummary[ offlineSummary$angle %in% angles, ]
+```
+
+
+```{r}
 reshapeSS = function(data, varSignal = "signal", 
                      keepVars = c("posXY", "posX","posY")) {
   byLocation =
@@ -504,8 +523,11 @@ reshapeSS = function(data, varSignal = "signal",
   return(newDataSS)
 }
 
-trainSS = reshapeSS(offlineSubset, varSignal = "avgSignal")
+#trainSS = reshapeSS(offlineSubset, varSignal = "avgSignal")
+```
 
+
+```{r}
 selectTrain = function(angleNewObs, signals = NULL, m = 1){
   # m is the number of angles to keep between 1 and 5
   refs = seq(0, by = 45, length  = 8)
@@ -524,7 +546,7 @@ selectTrain = function(angleNewObs, signals = NULL, m = 1){
   angles = angles + nearestAngle
   angles[angles < 0] = angles[ angles < 0 ] + 360
   angles[angles > 360] = angles[ angles > 360 ] - 360
-  angles = sort(angles) 
+  angles = sort(angles)
   
   offlineSubset = signals[ signals$angle %in% angles, ]
   reshapeSS(offlineSubset, varSignal = "avgSignal")
@@ -532,10 +554,13 @@ selectTrain = function(angleNewObs, signals = NULL, m = 1){
 
 train130 = selectTrain(130, offlineSummary, m = 3)
 
-formattable(head(train130))
+head(train130)
 
-length(train130[[1]])
+train130.nrow <- nrow(train130)
 ```
+
+"selectTrain() function averages the signal strengths for the different angles to produce one set of signal strengths for each of the ```r train130.nrow``` locations in the training data"
+
 
 ```{r}
 findNN = function(newSignal, trainSubset) {
@@ -545,7 +570,10 @@ findNN = function(newSignal, trainSubset) {
   closest = order(dists)
   return(trainSubset[closest, 1:3 ])
 }
+```
 
+
+```{r}
 predXY = function(newSignals, newAngles, trainData, 
                   numAngles = 1, k = 3){
   
@@ -563,6 +591,10 @@ predXY = function(newSignals, newAngles, trainData,
   estXY = do.call("rbind", estXY)
   return(estXY)
 }
+```
+
+
+```{r}
 estXYk3 = predXY(newSignals = onlineSummary[ , 6:11], 
                  newAngles = onlineSummary[ , 4], 
                  offlineSummary, numAngles = 3, k = 3)
@@ -597,24 +629,26 @@ trainPoints = offlineSummary[ offlineSummary$angle == 0 &
 oldPar = par(mar = c(1, 1, 1, 1))
 floorErrorMap(estXYk3, onlineSummary[ , c("posX","posY")], 
               trainPoints = trainPoints, AP = AP)
-par(oldPar)
-#dev.off()
+```
 
-#pdf(file="GEO_FloorPlanK1Errors.pdf", width = 10, height = 7)
-oldPar = par(mar = c(1, 1, 1, 1))
+
+```{r}
 floorErrorMap(estXYk1, onlineSummary[ , c("posX","posY")], 
               trainPoints = trainPoints, AP = AP)
 par(oldPar)
-#dev.off()
+```
 
+
+```{r}
 calcError = 
 function(estXY, actualXY) 
    sum( rowSums( (estXY - actualXY)^2) )
 
 actualXY = onlineSummary[ , c("posX", "posY")]
-sapply(list(estXYk1, estXYk3), calcError, actualXY)
+SSE <- sapply(list(estXYk1, estXYk3), calcError, actualXY)
 ```
 
+$k_1 SSE =$```r SSE[1]``` and $k_3 SSE =$ ```r SSE[2]```
 
 ```{r}
 v = 11
@@ -624,6 +658,12 @@ permuteLocs = matrix(permuteLocs, ncol = v,
 
 onlineFold = subset(offlineSummary, posXY %in% permuteLocs[ , 1])
 
+head(onlineFold)
+onlineFold.ul <- nrow(unique(onlineFold[,2:3]))
+```
+Single fold contains data for ```r onlineFold.ul``` locations.
+
+```{r}
 reshapeSS = function(data, varSignal = "signal", 
                      keepVars = c("posXY", "posX","posY"),
                      sampleAngle = FALSE, 
@@ -645,7 +685,7 @@ reshapeSS = function(data, varSignal = "signal",
   return(newDataSS)
 }
 
-offline = offline[ offline$mac != "00:0f:a3:39:dd:cd", ]
+offline = offline[ offline$mac != "00:0f:a3:39:dd:cd", ] #Look at all but MAC 00:0f:a3:39:dd:cd
 
 keepVars = c("posXY", "posX","posY", "orientation", "angle")
 
@@ -837,7 +877,10 @@ reshapeSS = function(data, varSignal = "signal",
   newDataSS = do.call("rbind", byLocation)
   return(newDataSS)
 }
+```
 
+
+```{r}
 offline = offline[ offline$mac != "00:0f:a3:39:dd:cd", ]
 
 keepVars = c("posXY", "posX","posY", "orientation", "angle")

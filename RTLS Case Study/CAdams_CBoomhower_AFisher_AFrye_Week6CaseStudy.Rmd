@@ -26,9 +26,20 @@ Results:
 
 Discussion & Future Works - Chris/Frye
 
+#Real-Time Location System - Case Study Unit 6
+####Cory Adams, Chris Boomhower, Alexandra Fisher, Alex Frye
+####MSDS 7333, October 8, 2017
+
 ##Abstract
 
 ##Introduction
+Real-time location systems (RTLS) are local systems comprised of tags, readers, and location sensing systems that function as a whole to accurately determine locations of people or objects in real-time. While GPS has become a ubiquitous solution for outdoor real-time locating, RTLS technology has evolved and become much more prevalent for indoor tracking. 
+
+In this case study we investigate RTLS technology and the use of WiFi signals to predict location by applying k-nearest neighbors (KNN) to a real location data set. This is accomplished by leveraging the KNN clustering technique to a set of signal strengths in which we average the known (x, y) values for these neighbors to predict location estimates [].
+
+Alternatively, a weighted average is calculated and considered as a potentially better predictor. In this formulation, the weights are inversely proportional to the distance (in signal strength) from the test observation, allowing inclusion of the k points that are nearest, while differentiating between them by how close they actually are []. 
+
+After implementing the weighted average KNN alternative approach, resulting predictions are analyzed and compared against the simple average predictions to ultimately determine the optimal prediction method. 
 
 ##Literature Review
 

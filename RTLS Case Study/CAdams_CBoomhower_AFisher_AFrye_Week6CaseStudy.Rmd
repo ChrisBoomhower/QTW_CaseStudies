@@ -437,14 +437,14 @@ xyplot(signal ~ dist | factor(mac) + factor(angle),
        data = offlineSummary, pch = 19, cex = 0.3,
        xlab ="distance")
 
-pdf(file="Geo_ScatterSignalDist.pdf", width = 7, height = 10)
+#pdf(file="Geo_ScatterSignalDist.pdf", width = 7, height = 10)
 oldPar = par(mar = c(3.1, 3.1, 1, 1))
 library(lattice)
 xyplot(signal ~ dist | factor(mac) + factor(angle), 
        data = offlineSummary, pch = 19, cex = 0.3,
        xlab ="distance")
 par(oldPar)
-dev.off()
+#dev.off()
 ```
 
 ***Start of Methods outline sections 3-5***
@@ -752,31 +752,64 @@ $k_4 SSE =$```r SSE.k4``` is less than our previous reviews of $k_1 SSE$ and $k_
 ####KNN Distance Weighting
 *Remove as much code as needed since only weighting modification needed*
 ```{r}
+
+#Modify findNN to also output the distances
 findNN = function(newSignal, trainSubset) {
   diffs = apply(trainSubset[ , 4:9], 1, 
                 function(x) x - newSignal)
   dists = apply(diffs, 2, function(x) sqrt(sum(x^2)) )
   closest = order(dists)
-  return(trainSubset[closest, 1:3 ])
+  return(list(trainSubset[closest, 1:3 ],dists[order(dists)]))
 }
 
+#Modify findNN to utilize distance output for estimation efforts
 predXY = function(newSignals, newAngles, trainData, 
                   numAngles = 1, k = 3){
   
   closeXY = list(length = nrow(newSignals))
+  closeDist = list(length = nrow(newSignals))
   
   for (i in 1:nrow(newSignals)) {
     trainSS = selectTrain(newAngles[i], trainData, m = numAngles)
-    closeXY[[i]] = 
-      findNN(newSignal = as.numeric(newSignals[i, ]), trainSS)
+    fnnResult =
+    findNN(newSignal = as.numeric(newSignals[i, ]), trainSS)
+  
+    closeXY[[i]] = fnnResult[[1]]
+    closeDist[[i]] = fnnResult[[2]]
+  }
+  
+  
+  distWeight = list(length = length(closeDist))
+  
+  for (i in 1:length(closeDist)){
+    distW = list(length = k)
+
+    for (j in 1:k){
+      distW[j] = (1/closeDist[[i]][j])/sum(1/closeDist[[i]][1:k])
+    }
+     
+    distWeight[[i]] =  distW
   }
 
-  estXY = lapply(closeXY, 
-                 function(x) sapply(x[ , 2:3], 
-                                    function(x) mean(x[1:k])))
+  estXYDetails = list(length=length(closeXY))
+  
+  for(i in 1:length(closeXY)){
+    estXYDetails[[i]] = as.matrix(closeXY[[i]][1:k,2:3]) * unlist(distWeight[[i]])
+  }
+  
+
+  estXY = lapply(estXYDetails,
+                 function(x) apply(x, 2,
+                                   function(x) sum(x)))
+  
+  
   estXY = do.call("rbind", estXY)
   return(estXY)
 }
+```
+
+
+```{r}
 estXYk3 = predXY(newSignals = onlineSummary[ , 6:11], 
                  newAngles = onlineSummary[ , 4], 
                  offlineSummary, numAngles = 3, k = 3)
@@ -784,7 +817,10 @@ estXYk3 = predXY(newSignals = onlineSummary[ , 6:11],
 estXYk1 = predXY(newSignals = onlineSummary[ , 6:11], 
                  newAngles = onlineSummary[ , 4], 
                  offlineSummary, numAngles = 3, k = 1)
+```
 
+
+```{r}
 floorErrorMap = function(estXY, actualXY, trainPoints = NULL, AP = NULL){
   
     plot(0, 0, xlim = c(0, 35), ylim = c(-3, 15), type = "n",

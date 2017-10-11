@@ -281,10 +281,6 @@ offlineRedo = readData()
 identical(offline, offlineRedo)
 ```
 
-**Breakdown methods for actual analysis here, before moving into Results section below**
-
-**Still need to split up chunk below**
-
 ##Results
 
 ####Signal Strength Analysis - Distribution of Signal Strength
@@ -440,7 +436,6 @@ par(oldPar)
 #dev.off()
 ```
 
-***Start of Methods outline sections 3-5***
 
 ####KNN Average Weighting
 While there exist various techniques that may be used to estimate device location based on RSSI, this case study seeks to undertake a simple KNN clustering approach for test observation location determination. As such, a measure of Euclidean Distance, as depicted in the formula below, will be used to assess proximity of a test observation to the 166 potential neighbor locations:

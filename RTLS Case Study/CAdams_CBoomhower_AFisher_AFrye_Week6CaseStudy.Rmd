@@ -14,7 +14,6 @@ When you save the notebook, an HTML file containing the code and output will be 
 ##Outline
 Abstract - Fisher
 Intro - Fisher
-Lit Review - Fisher
 Methods - Fisher
 Results:
 
@@ -28,14 +27,15 @@ Discussion & Future Works - Chris/Frye
 
 #Real-Time Location System - Case Study Unit 6
 ####Cory Adams, Chris Boomhower, Alexandra Fisher, Alex Frye
-####MSDS 7333, October 8, 2017
+####MSDS 7333, October 10, 2017
 
 ##Abstract
+This case study was undertaken in order to highlight and address the use of real-time location system (RTLS) technology and WiFi signals to predict the location of a device within a college dormitory. Location prediction is achieved by application of the k-nearest neighbors (kNN) clustering technique to a real location data set. Both a weighted and unweighted kNN are used and performance of the two classification methods on the data is then evaluated and compared against simple average predictions to determine the best prediction method.
 
 ##Introduction
-Real-time location systems (RTLS) are local systems comprised of tags, readers, and location sensing systems that function as a whole to accurately determine locations of people or objects in real-time. While GPS has become a ubiquitous solution for outdoor real-time locating, RTLS technology has evolved and become much more prevalent for indoor tracking. 
+Real-time location systems (RTLS) are local systems comprised of tags, readers, and location sensing systems that function as a whole to accurately determine locations of people or objects in real-time. While GPS has become a ubiquitous solution for outdoor real-time locating, RTLS technology has evolved and become much more prevalent for indoor tracking. In this case study we investigate RTLS technology and the use of WiFi signals to predict location by applying k-nearest neighbors (kNN) to a real location data set. The data set used is comprised of MAC addresses from recorded connections made to routers within the college dormitory. WiFi signal strength is measured at every router (network access point) via a mobile scanning device, and by measuring signal strength for these routers at various locations we are able to create a reference dataset on which to base device position predictions.
 
-In this case study we investigate RTLS technology and the use of WiFi signals to predict location by applying k-nearest neighbors (KNN) to a real location data set. This is accomplished by leveraging the KNN clustering technique to a set of signal strengths in which we average the known (x, y) values for these neighbors to predict location estimates [].
+Advanced clustering methods are then performed on the reference dataset through the application of weighted and unweighted kNN algorithms to predict device locations. This is accomplished by leveraging the kNN clustering technique to a set of signal strengths in which we average the known (x,y) values for these neighbors to predict location estimates of devices [1]. Alternatively, a weighted average is calculated and considered as a potentially better predictor. In this formulation, the weights are inversely proportional to the distance (in signal strength) from the test observation, allowing inclusion of the k points that are nearest, while differentiating between them by how close they actually are [1]. After implementing the alternative approach of the weighted average kNN, resulting predictions are analyzed and compared against the simple average predictions to ultimately determine the optimal prediction method. 
 
 Alternatively, a weighted average is calculated and considered as a potentially better predictor. In this formulation, the weights are inversely proportional to the neighbors' distance (measured in Received Signal Strength Indication, or RSSI) from the test observation, allowing inclusion of the k points that are nearest while differentiating between them by how close they actually are []. 
 
@@ -44,12 +44,7 @@ After implementing the weighted average KNN alternative approach, resulting pred
 ##Literature Review
 
 ##Methods
-1. Data clean up & EDA (MAC address EDA, orientation, etc.)
-2. Signal strength analysis
-3. KNN average weighting
-4. KNN distance weighting
-5. KNN comparison
-
+The steps used for this analysis were: 1) data clean up and EDA; 2) signal strength analysis; 3) implementation of kNN average weighting approach; 4) implementation of kNN distance weighting approach; & 5) comparison of kNN approaches to determine the best location prediction method. Note that code used includes modified versions of R code function examples found in Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving, Chapter 1, pages 3-40 [1]. 
 
 ####Data Import
 ```{r}
@@ -760,7 +755,17 @@ SSE.k4 <- calcError(estXYk4, actualXY)
 $k_4 SSE =$```r SSE.k4``` is less than our previous reviews of $k_1 SSE$ and $k_3 SSE$ at ```r SSE[1]``` and ```r SSE[2]``` respectively.
 
 ####KNN Distance Weighting
-*Remove as much code as needed since only weighting modification needed*
+
+As we estimate position by average x,y location across k nearest points, we begin to wonder if the distance of those points is relevant to the accuracy of the model. To test this, we apply weights to the x,y positions of each k closest locations and take the sum of those results, instead of averaging the values. With the below formula, we are able to compute weights for each k closest observations.
+
+$$
+\begin{aligned}
+\frac{1/d_i}{\sum_{i=1}^{k}1/d_i}
+\end{aligned}
+$$
+
+The findNN and predXY functions have been modified below
+
 ```{r}
 
 #Modify findNN to also output the distances
@@ -817,7 +822,7 @@ predXY = function(newSignals, newAngles, trainData,
   return(estXY)
 }
 ```
-
+text
 
 ```{r}
 estXYk3 = predXY(newSignals = onlineSummary[ , 6:11], 
@@ -853,41 +858,57 @@ trainPoints = offlineSummary[ offlineSummary$angle == 0 &
                               offlineSummary$mac == "00:0f:a3:39:e1:c0" ,
                         c("posX", "posY")]
 
-#pdf(file="GEO_FloorPlanK3Errors.pdf", width = 10, height = 7)
-oldPar = par(mar = c(1, 1, 1, 1))
-floorErrorMap(estXYk3, onlineSummary[ , c("posX","posY")], 
-              trainPoints = trainPoints, AP = AP)
-par(oldPar)
-#dev.off()
 
-#pdf(file="GEO_FloorPlanK1Errors.pdf", width = 10, height = 7)
+```
+
+```{r}
+#pdf(file="GEO_FloorPlanK3Errors.pdf", width = 10, height = 7)
 oldPar = par(mar = c(1, 1, 1, 1))
 floorErrorMap(estXYk1, onlineSummary[ , c("posX","posY")], 
               trainPoints = trainPoints, AP = AP)
-par(oldPar)
-#dev.off()
 
+oldPar = par(mar = c(1, 1, 1, 1))
+par(oldPar)
+floorErrorMap(estXYk3, onlineSummary[ , c("posX","posY")], 
+              trainPoints = trainPoints, AP = AP)
+```
+
+```{r}
 calcError = 
 function(estXY, actualXY) 
    sum( rowSums( (estXY - actualXY)^2) )
 
 actualXY = onlineSummary[ , c("posX", "posY")]
-sapply(list(estXYk1, estXYk3), calcError, actualXY)
+SSE <- sapply(list(estXYk1, estXYk3), calcError, actualXY)
 ```
 
+$k_1 SSE =$```r SSE[1]``` and $k_3 SSE =$ ```r SSE[2]```
 
 ```{r}
+set.seed(seed = seed)
+
 v = 11
 permuteLocs = sample(unique(offlineSummary$posXY))
 permuteLocs = matrix(permuteLocs, ncol = v, 
                      nrow = floor(length(permuteLocs)/v))
 
 onlineFold = subset(offlineSummary, posXY %in% permuteLocs[ , 1])
+```
 
+```{r}
+head(onlineFold)
+onlineFold.ul <- nrow(unique(onlineFold[,2:3]))
+```
+Single fold contains data for ```r onlineFold.ul``` locations.
+
+```{r}
 reshapeSS = function(data, varSignal = "signal", 
                      keepVars = c("posXY", "posX","posY"),
                      sampleAngle = FALSE, 
                      refs = seq(0, 315, by = 45)) {
+    
+  set.seed(seed = seed)
+    
   byLocation =
     with(data, by(data, list(posXY), 
                   function(x) {
@@ -904,27 +925,20 @@ reshapeSS = function(data, varSignal = "signal",
   newDataSS = do.call("rbind", byLocation)
   return(newDataSS)
 }
+```
 
-offline = offline[ offline$mac != "00:0f:a3:39:dd:cd", ]
+
+```{r}
+offline = offline[ offline$mac != "00:0f:a3:39:dd:cd", ] #Look at all but MAC 00:0f:a3:39:dd:cd
 
 keepVars = c("posXY", "posX","posY", "orientation", "angle")
 
 onlineCVSummary = reshapeSS(offline, keepVars = keepVars, 
                             sampleAngle = TRUE)
+```
 
-onlineFold = subset(onlineCVSummary, 
-                    posXY %in% permuteLocs[ , 1])
 
-offlineFold = subset(offlineSummary,
-                     posXY %in% permuteLocs[ , -1])
-
-estFold = predXY(newSignals = onlineFold[ , 6:11], 
-                 newAngles = onlineFold[ , 4], 
-                 offlineFold, numAngles = 3, k = 3)
-
-actualFold = onlineFold[ , c("posX", "posY")]
-calcError(estFold, actualFold)
-
+```{r}
 K = 20
 err = rep(0, K)
 
@@ -942,8 +956,10 @@ for (j in 1:v) {
     err[k] = err[k] + calcError(estFold, actualFold)
   }
 }
+```
 
-#pdf(file = "Geo_CVChoiceOfK.pdf", width = 10, height = 6)
+
+```{r}
 oldPar = par(mar = c(4, 3, 1, 1))
 plot(y = err, x = (1:K),  type = "l", lwd= 2,
      ylim = c(1200, 2100),
@@ -954,40 +970,45 @@ rmseMin = min(err)
 kMin = which(err == rmseMin)[1]
 segments(x0 = 0, x1 = kMin, y0 = rmseMin, col = gray(0.4), 
          lty = 2, lwd = 2)
-segments(x0 = kMin, x1 = kMin, y0 = 1100,  y1 = rmseMin, 
+segments(x0 = kMin, x1 = kMin, y0 = 900,  y1 = rmseMin, 
          col = grey(0.4), lty = 2, lwd = 2)
 
-#mtext(kMin, side = 1, line = 1, at = kMin, col = grey(0.4))
+mtext(kMin, side = 1, line = 1, at = kMin, col = grey(0.4))
 text(x = kMin - 2, y = rmseMin + 40, 
      label = as.character(round(rmseMin)), col = grey(0.4))
 par(oldPar)
-#dev.off()
-
-estXYk5 = predXY(newSignals = onlineSummary[ , 6:11], 
-                 newAngles = onlineSummary[ , 4], 
-                 offlineSummary, numAngles = 3, k = 5)
-
-calcError(estXYk5, actualXY)
-
-predXY = function(newSignals, newAngles, trainData, 
-                  numAngles = 1, k = 3){
-  
-  closeXY = list(length = nrow(newSignals))
-  
-  for (i in 1:nrow(newSignals)) {
-    trainSS = selectTrain(newAngles[i], trainData, m = numAngles)
-    closeXY[[i]] = findNN(newSignal = as.numeric(newSignals[i, ]),
-                           trainSS)
-  }
-
-  estXY = lapply(closeXY, function(x)
-                            sapply(x[ , 2:3], 
-                                    function(x) mean(x[1:k])))
-  estXY = do.call("rbind", estXY)
-  return(estXY)
-}
 ```
+
+Using $kmin =$ ```r kMin``` going forward (different from book's k=5 due to sampling during *offlineSummary*, *onlineCVSummary*, and *permuteLocs* computation)
+```{r}
+estXYk8 = predXY(newSignals = onlineSummary[ , 6:11], 
+                 newAngles = onlineSummary[ , 4], 
+                 offlineSummary, numAngles = 3, k = kMin)
+
+oldPar = par(mar = c(1, 1, 1, 1))
+par(oldPar)
+floorErrorMap(estXYk8, onlineSummary[ , c("posX","posY")], 
+              trainPoints = trainPoints, AP = AP)
+
+```
+
+```{r}
+SSE.k8 <- calcError(estXYk8, actualXY)
+```
+
+$k_8 SSE =$```r SSE.k8``` through weighted distance estimation is `r abs(SSE.k8 - SSE.k4)` less than our previous reviews of $k_4 SSE$ at ```r SSE.k4``` from the mean location nearest neighbor estimation.
 
 ####KNN Comparison
 
 ##Discussion and Future Works
+
+
+####KNN Comparison
+
+##Discussion and Future Works
+
+## References
+[1] D. Lang and D. Nolan, Data Science in R: A Case Studies Approach to Computation Reasoning and Problem Solving. New York, New York: CRC Press.  
+[2] 
+[3] 
+[4]

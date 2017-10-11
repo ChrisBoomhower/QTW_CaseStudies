@@ -765,7 +765,7 @@ $$
 \end{aligned}
 $$
 
-The findNN function below has been modified from the previous version to also output the distance metrics utilized in determining the "closest" k points. Additionally, the predXY function has been modified to compute weights with the formula above and distance outputs from the findNN output. These weights are then multiplied against each k observation, respectively, then summed, to compute a weighted estimation by distance. These new calculations may allow locations of closer distances, to be more impactful than those further away instead of equal weighting amongst the k points.
+The findNN function below has been modified from the previous version to also output the distance metrics utilized in determining the "closest" k points. Additionally, the predXY function has been modified to compute weights with the formula above and distance outputs from the findNN output. These weights are then multiplied against each k nearest observation, respectively, then summed, to compute a weighted estimation by distance. These new calculations may allow locations of closer distances, to be more impactful than those further away instead of equal weighting amongst the k points.
 
 ```{r}
 
@@ -824,6 +824,7 @@ predXY = function(newSignals, newAngles, trainData,
 }
 ```
 
+
 ```{r}
 set.seed(seed = seed)
 
@@ -846,11 +847,12 @@ for (j in 1:v) {
 }
 ```
 
+Once again, we perform fold tests on 1-20 k nearest neighbor estimations. This time, utilizing the distance weighting modifications for each estimation. We save errors computed in each k iteration, so we may plot results below. 
 
 ```{r}
 set.seed(seed = seed)
 
-oldPar = par(mar = c(4, 3, 1, 1))
+oldPar = par(mar = c(4, 5, 1, 1))
 plot(y = err, x = (1:K),  type = "l", lwd= 2,
      ylim = c(1200, 2100),
      xlab = "Number of Neighbors",
@@ -869,27 +871,27 @@ text(x = kMin - 2, y = rmseMin + 40,
 par(oldPar)
 ```
 
-Using $kmin =$ ```r kMin``` going forward (different than the mean k location estimate approach of $k = 4$).
+
+Plotting SSE values amongst the 20 k test iterations, we see that $kmin =$ ```r kMin``` produces optimal results at a an SSE value of `r err[kMin]`
 
 ```{r}
+set.seed(seed = seed)
+
 estXYk8 = predXY(newSignals = onlineSummary[ , 6:11], 
                  newAngles = onlineSummary[ , 4], 
                  offlineSummary, numAngles = 3, k = kMin)
 
-oldPar = par(mar = c(1, 1, 1, 1))
-par(oldPar)
-floorErrorMap(estXYk8, onlineSummary[ , c("posX","posY")], 
-              trainPoints = trainPoints, AP = AP)
-
-```
-
-```{r}
 SSE.k8 <- calcError(estXYk8, actualXY)
+
 ```
 
-$k_8 SSE =$```r SSE.k8``` through weighted distance estimation is `r abs(SSE.k8 - SSE.k4)` less than our previous reviews of $k_4 SSE$ at ```r SSE.k4``` from the mean location nearest neighbor estimation.
+With our optimal $k$ value selected for number of nearest points, we compute predictions utilizing the weighted distance estimation method storing the SSE values for comparison to the average location methods.
 
 ####KNN Comparison
+
+With optimal predition method inputs defined for both average location estimation and weighted distance estimation, we compare estimations both visually and through SSE values.
+As can be seen below, Average Location Estimates vs Actual(top) and Weighted Distance Estimates vs Actual(bottom) plots help to describe how accurate the estimations were. Errors in both models, seem to struggle the most in narrow hallways. This large error makes sense, given the fewer observations available for $k$ matches. OVerall, differences in these output show very similar results with some errors being largely minimized by the weighted distance strategy and others slightly increased. Although these measures appear fairly close to one another, it does appear as though the weighted distance methodology overall has a greater impact. 
+
 ```{r}
 oldPar = par(mar = c(1, 1, 1, 1))
 par(oldPar)
@@ -901,6 +903,10 @@ par(oldPar)
 floorErrorMap(estXYk8, onlineSummary[ , c("posX","posY")], 
               trainPoints = trainPoints, AP = AP)
 ```
+
+
+Our observations in the above visuals may be confirmed by comparing SSE values for each method. $k_{8WeightedDistance}SSE =$```r SSE.k8``` through weighted distance estimation is `r abs(SSE.k8 - SSE.k4)` less than our previous reviews of $k_{4AverageLocation}SSE$ at ```r SSE.k4``` from the mean location nearest neighbor estimation. This places our original observations from the visuals correct, with the weighted distance estimation providing more accurate results overall in the model. These weighted distances allow those $k$ observations that are heavily skewed with few observations of close distance and large number of observations of large distance to be appropriately computed without biased input from the further distance points. 
+
 ##Discussion and Future Works
 
 

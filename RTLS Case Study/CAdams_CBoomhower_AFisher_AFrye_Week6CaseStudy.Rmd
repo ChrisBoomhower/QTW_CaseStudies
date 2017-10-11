@@ -640,7 +640,7 @@ SSE <- sapply(list(estXYk1, estXYk3), calcError, actualXY)
 
 Doing so reveals $k_1 SSE =$```r SSE[1]``` and $k_3 SSE =$ ```r SSE[2]```. This correlates with the visual summary we extracted from the error maps above and confirms that 3 nearest neighbors more accurately predict location when compred to only one nearest neighbor. Even so, we still need to determine if there is another k value that would even more accurately predict device location.
 
-To do this, we choose to use v-fold cross validation 
+In order to avoid overfitting, we must identify the optimal value of k independent of our test observations. We use v-fold cross validation to do so. A $v$ value of 11 is selected since we have 166 different offline locations, allocating 15 locations to each fold. Allocations are randomly selected as follows (Note a warning is received since a $v$ of 11 does not divide evenly into 166; this is acceptable in our case).
 
 ```{r}
 set.seed(seed = seed)
@@ -653,11 +653,14 @@ permuteLocs = matrix(permuteLocs, ncol = v,
 onlineFold = subset(offlineSummary, posXY %in% permuteLocs[ , 1])
 ```
 
+After performing the above random allocations, the first 6 of ```r onlineFold.ul``` locations from our first fold are depicted below.
+
 ```{r}
 head(onlineFold)
 onlineFold.ul <- nrow(unique(onlineFold[,2:3]))
 ```
-Single fold contains data for ```r onlineFold.ul``` locations.
+
+Since we previously summarized our offline data into a structure containing 6 signal strength columns, one for each access point, we will do the same with our cross-validated test data. However, because it is easier to structure the test data in its complete form from offline data which is then divided into our desired folds, we now need to modify the *reshapeSS()* function as follows.
 
 ```{r}
 reshapeSS = function(data, varSignal = "signal", 
@@ -670,7 +673,7 @@ reshapeSS = function(data, varSignal = "signal",
   byLocation =
     with(data, by(data, list(posXY), 
                   function(x) {
-                    if (sampleAngle) {
+                    if (sampleAngle) { # conditional statement added for cross-validation
                       x = x[x$angle == sample(refs, size = 1), ]}
                     ans = x[1, keepVars]
                     avgSS = tapply(x[ , varSignal ], x$mac, mean)
@@ -685,6 +688,7 @@ reshapeSS = function(data, varSignal = "signal",
 }
 ```
 
+We now proceed to summarize and format the offline data using the updated *reshapeSS()* function to produce our online cross-validation summary data structure as below.
 
 ```{r}
 offline = offline[ offline$mac != "00:0f:a3:39:dd:cd", ] #Look at all but MAC 00:0f:a3:39:dd:cd
@@ -695,6 +699,7 @@ onlineCVSummary = reshapeSS(offline, keepVars = keepVars,
                             sampleAngle = TRUE)
 ```
 
+We're now finally ready to determine the appropriate value for k based on our data. To do this, we calculate the SSE values for each value of k between 1 and 20. Doing this allows us to choose the k value which produces the smallest error among all k options.
 
 ```{r}
 K = 20
@@ -716,9 +721,10 @@ for (j in 1:v) {
 }
 ```
 
+The SSE values produced for $k = 1$ through $k = 20$ are plotted for quick and easy review. The below figure plots the sum of fold SSE values with respect to each k count.
 
 ```{r}
-oldPar = par(mar = c(4, 3, 1, 1))
+oldPar = par(mar = c(4, 5, 1, 1))
 plot(y = err, x = (1:K),  type = "l", lwd= 2,
      ylim = c(1200, 2100),
      xlab = "Number of Neighbors",
@@ -737,7 +743,8 @@ text(x = kMin - 2, y = rmseMin + 40,
 par(oldPar)
 ```
 
-Using $kmin =$ ```r kMin``` going forward (different from book's k=5 due to sampling during *offlineSummary*, *onlineCVSummary*, and *permuteLocs* computation)
+Based on our analysis, $k =$ ```r kMin``` produces the least amount of error. This value differs from Nolan and Lang's $k=5$ identified in their case study walkthrough due to our random sampling during *offlineSummary*, *onlineCVSummary*, and *permuteLocs* computation. Had we been provided the same seed value they used during their analysis, we would have obtained the same k result. However, since the difference is due to randomness alone, our $k=$ ```r kMin``` is perfectly acceptable. With our optimal k defined, we may proceed with estimation to calculate final Sum of Squared Errors.
+
 ```{r}
 estXYk4 = predXY(newSignals = onlineSummary[ , 6:11], 
                  newAngles = onlineSummary[ , 4], 
@@ -746,7 +753,7 @@ estXYk4 = predXY(newSignals = onlineSummary[ , 6:11],
 SSE.k4 <- calcError(estXYk4, actualXY)
 ```
 
-$k_4 SSE =$```r SSE.k4``` is less than our previous reviews of $k_1 SSE$ and $k_3 SSE$ at ```r SSE[1]``` and ```r SSE[2]``` respectively.
+Based on these results, $k_4 SSE =$```r SSE.k4```. This value is less than our previous reviews of $k_1 SSE$ and $k_3 SSE$ at ```r SSE[1]``` and ```r SSE[2]``` respectively. As expected, choosing an optimized value for k results in the most accurate model. It is this SSE value for $k=4$, ```r SSE.k4```, that we will use to compare against our weighted distance KNN model.
 
 ####KNN Distance Weighting
 

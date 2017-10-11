@@ -14,7 +14,6 @@ When you save the notebook, an HTML file containing the code and output will be 
 ##Outline
 Abstract - Fisher
 Intro - Fisher
-Lit Review - Fisher
 Methods - Fisher
 Results:
 
@@ -28,28 +27,18 @@ Discussion & Future Works - Chris/Frye
 
 #Real-Time Location System - Case Study Unit 6
 ####Cory Adams, Chris Boomhower, Alexandra Fisher, Alex Frye
-####MSDS 7333, October 8, 2017
+####MSDS 7333, October 10, 2017
 
 ##Abstract
+This case study was undertaken in order to highlight and address the use of real-time location system (RTLS) technology and WiFi signals to predict the location of a device within a college dormitory. Location prediction is achieved by application of the k-nearest neighbors (kNN) clustering technique to a real location data set. Both a weighted and unweighted kNN are used and performance of the two classification methods on the data is then evaluated and compared against simple average predictions to determine the best prediction method.
 
 ##Introduction
-Real-time location systems (RTLS) are local systems comprised of tags, readers, and location sensing systems that function as a whole to accurately determine locations of people or objects in real-time. While GPS has become a ubiquitous solution for outdoor real-time locating, RTLS technology has evolved and become much more prevalent for indoor tracking. 
+Real-time location systems (RTLS) are local systems comprised of tags, readers, and location sensing systems that function as a whole to accurately determine locations of people or objects in real-time. While GPS has become a ubiquitous solution for outdoor real-time locating, RTLS technology has evolved and become much more prevalent for indoor tracking. In this case study we investigate RTLS technology and the use of WiFi signals to predict location by applying k-nearest neighbors (kNN) to a real location data set. The data set used is comprised of MAC addresses from recorded connections made to routers within the college dormitory. WiFi signal strength is measured at every router (network access point) via a mobile scanning device, and by measuring signal strength for these routers at various locations we are able to create a reference dataset on which to base device position predictions.
 
-In this case study we investigate RTLS technology and the use of WiFi signals to predict location by applying k-nearest neighbors (KNN) to a real location data set. This is accomplished by leveraging the KNN clustering technique to a set of signal strengths in which we average the known (x, y) values for these neighbors to predict location estimates [].
-
-Alternatively, a weighted average is calculated and considered as a potentially better predictor. In this formulation, the weights are inversely proportional to the distance (in signal strength) from the test observation, allowing inclusion of the k points that are nearest, while differentiating between them by how close they actually are []. 
-
-After implementing the weighted average KNN alternative approach, resulting predictions are analyzed and compared against the simple average predictions to ultimately determine the optimal prediction method. 
-
-##Literature Review
+Advanced clustering methods are then performed on the reference dataset through the application of weighted and unweighted kNN algorithms to predict device locations. This is accomplished by leveraging the kNN clustering technique to a set of signal strengths in which we average the known (x,y) values for these neighbors to predict location estimates of devices [1]. Alternatively, a weighted average is calculated and considered as a potentially better predictor. In this formulation, the weights are inversely proportional to the distance (in signal strength) from the test observation, allowing inclusion of the k points that are nearest, while differentiating between them by how close they actually are [1]. After implementing the alternative approach of the weighted average kNN, resulting predictions are analyzed and compared against the simple average predictions to ultimately determine the optimal prediction method. 
 
 ##Methods
-1. Data clean up & EDA (MAC address EDA, orientation, etc.)
-2. Signal strength analysis
-3. KNN average weighting
-4. KNN distance weighting
-5. KNN comparison
-
+The steps used for this analysis were: 1) data clean up and EDA; 2) signal strength analysis; 3) implementation of kNN average weighting approach; 4) implementation of kNN distance weighting approach; & 5) comparison of kNN approaches to determine the best location prediction method. Note that code used includes modified versions of R code function examples found in Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving, Chapter 1, pages 3-40 [1]. 
 
 ####Data Import
 ```{r}
@@ -981,3 +970,9 @@ predXY = function(newSignals, newAngles, trainData,
 ####KNN Comparison
 
 ##Discussion and Future Works
+
+## References
+[1] D. Lang and D. Nolan, Data Science in R: A Case Studies Approach to Computation Reasoning and Problem Solving. New York, New York: CRC Press.  
+[2] 
+[3] 
+[4]

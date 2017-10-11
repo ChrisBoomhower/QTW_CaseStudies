@@ -37,9 +37,9 @@ Real-time location systems (RTLS) are local systems comprised of tags, readers, 
 
 In this case study we investigate RTLS technology and the use of WiFi signals to predict location by applying k-nearest neighbors (KNN) to a real location data set. This is accomplished by leveraging the KNN clustering technique to a set of signal strengths in which we average the known (x, y) values for these neighbors to predict location estimates [].
 
-Alternatively, a weighted average is calculated and considered as a potentially better predictor. In this formulation, the weights are inversely proportional to the distance (in signal strength) from the test observation, allowing inclusion of the k points that are nearest, while differentiating between them by how close they actually are []. 
+Alternatively, a weighted average is calculated and considered as a potentially better predictor. In this formulation, the weights are inversely proportional to the neighbors' distance (measured in Received Signal Strength Indication, or RSSI) from the test observation, allowing inclusion of the k points that are nearest while differentiating between them by how close they actually are []. 
 
-After implementing the weighted average KNN alternative approach, resulting predictions are analyzed and compared against the simple average predictions to ultimately determine the optimal prediction method. 
+After implementing the weighted average KNN alternative approach, resulting predictions are analyzed and compared against the simple, average weight predictions to ultimately determine the optimal prediction method. 
 
 ##Literature Review
 
@@ -450,10 +450,14 @@ par(oldPar)
 ***Start of Methods outline sections 3-5***
 
 ####KNN Average Weighting
+While there exist various techniques that may be used to estimate device location based on RSSI, this case study seeks to undertake a simple KNN clustering approach for test observation location determination. As such, a measure of Euclidean Distance, as depicted in the formula below, will be used to assess proximity of a test observation to the 166 potential neighbor locations:
 
-$Euclidean Distance =\sqrt{(S_1^*-S_1)^2 + ...+ (S_6^*-S_6)^2}$
+<center>$Euclidean Distance =\sqrt{(S_1^*-S_1)^2 + ...+ (S_6^*-S_6)^2}$</center>
 
-"$S_i$ is the signal strength measured between the hand-held device and the $i$-th access point for a training observation taken at some specified location, and $S_1^*$ is the signal measured between the same access point and our new point whose $(x, y)$ values we are trying to predict
+
+In this formula, $S_i$ represents the strength of a signal measured between a hand-held device and an $i$-th training observation access point recorded at a specific location. Similarly, $S_1^*$ represents the signal measured between the same access point and the new point under assessment whose $(x, y)$ coordinates we are interested in determining.
+
+With much of our EDA complete and KNN prediction methodology defined, we need to next perform a few more preparatory actions before writing our model functions. Firstly, we create a unique location identifier column in our online data frame as follows.
 
 ```{r}
 macs = unique(offlineSummary$mac)
@@ -464,7 +468,7 @@ online$posXY = paste(online$posX, online$posY, sep = "-")
 posXY.unique <- length(unique(online$posXY))
 ```
 
-We have ```r posXY.unique``` unique test locations available in the online dataset.
+Based on the various X-Y combinations that have now been concatenated into a new column, we have ```r posXY.unique``` unique test locations available in the online dataset. With this in mind, we proceed to tally the number of RSSI values recorded at each location. The following output depicts 10 randomly sampled location tallies by orientation. This sampling reveals that RSSI values were recorded at only one orientation for each location.
 
 ```{r}
 set.seed(seed = seed)
@@ -473,9 +477,7 @@ tabonlineXYA = table(online$posXY, online$angle)
 tabonlineXYA[sample(1:nrow(tabonlineXYA), 10), ]
 ```
 
-Sampling of tallies indicate measurements taken at single orientation for each location
-
-"Organize the data so that we have 6 columns of signal strengths, i.e., one for each of the access points. We summarize the online data into this format, providing the average signal strength at each location."
+With these added insights, we are ready to restructure the data into 6 columns of signal strengths rather than only a single signal strength column with all access points as has been done so far. This means that each access point will have its own column comprised of its respective RSSI values. This step will make it easier to compute distance between the 6 signal strength vectors. In so doing, we provide the average signal strength at each location as summary and depict the first 10% of these below (the first 6 locations comprise the first 10%). Notice 11 columns are present in our summary, including the concatinated X-Y values, X and Y values in their separate columns, orientation, angle, and the 6 access points' average RSSI values.
 
 ```{r}
 keepVars = c("posXY", "posX","posY", "orientation", "angle")
@@ -496,7 +498,7 @@ onlineSummary = do.call("rbind", byLoc)
 head(onlineSummary)
 ```
 
-
+As part of our prediction process, our objective is to find offline data points that share similar orientations to our new location points since we discovered orientation impacts signal strength during our EDA efforts. To accomplish this, we select all records within a particular range of the test point's orientation. As all observations were recorded in 45 degree increments, this becomes as easy as specifying the number of neighboring angles to include from the offline dataset. For even numbers, this means selecting even multiples of 45 degrees on each side of a test observation's orientation angle. For odd numbers, it means selecting offline data with angles which match the new observation's rounded orientation as well as those that flank the new observation's angle. In the case where only one orientation is desired, offline data with angles matching the new observation's will be selected only. The procedures to perform these actions, and to create a data structure aggregating the RSSI values from these angles, are as follows.
 
 ```{r}
 reshapeSS = function(data, varSignal = "signal", 
@@ -516,11 +518,7 @@ reshapeSS = function(data, varSignal = "signal",
   return(newDataSS)
 }
 
-#trainSS = reshapeSS(offlineSubset, varSignal = "avgSignal")
-```
 
-
-```{r}
 selectTrain = function(angleNewObs, signals = NULL, m = 1){
   # m is the number of angles to keep between 1 and 5
   refs = seq(0, by = 45, length  = 8)
@@ -544,15 +542,19 @@ selectTrain = function(angleNewObs, signals = NULL, m = 1){
   offlineSubset = signals[ signals$angle %in% angles, ]
   reshapeSS(offlineSubset, varSignal = "avgSignal")
 }
-
-train130 = selectTrain(130, offlineSummary, m = 3)
-
-head(train130)
-
-train130.nrow <- nrow(train130)
 ```
 
-"selectTrain() function averages the signal strengths for the different angles to produce one set of signal strengths for each of the ```r train130.nrow``` locations in the training data"
+To illustrate the performance of the above functions, below we depict the data structure created for an angle of 130 degrees using 3 angles in total (only first 6 rows shown). This, therefore, is an aggregation for angles of 90, 135, and 180 degrees. Note the average signal strengths are computed for the different angles by the *selectTrain()* function and that one set of signal strengths is created for each of the offline dataset's ```r train130.nrow``` locations.
+
+```{r}
+train130 = selectTrain(130, offlineSummary, m = 3)
+
+train130.nrow <- nrow(train130)
+
+head(train130)
+```
+
+Once angle count functions are determined, the next step is to define a function to calculate distances between new points and all offline dataset observations. The following *findNN()* function is constructed to do just that, receiving 6 new signal strengths along with 6 offline signal strengths as output from the *selectTrain()* function. Locations of offline training observations are ordered by proximity to the new test observation's RSSI values before being output by *findNN()*.
 
 
 ```{r}
@@ -565,6 +567,9 @@ findNN = function(newSignal, trainSubset) {
 }
 ```
 
+As noted in our Methodology section, our first KNN prediction process simply averages the first k locations returned by the *findNN()* function. This procedure, along with the *findNN()*, *selectTrain()*, and *reshapeSS()* function calls, is embedded in the *predXY()* wrapper function as below.
+
+*As indicated in our Methodology section, we will later be comparing the results of averaging the first k locations to weighting locations based on RSSI values.*
 
 ```{r}
 predXY = function(newSignals, newAngles, trainData, 
@@ -586,6 +591,7 @@ predXY = function(newSignals, newAngles, trainData,
 }
 ```
 
+Using the *predXY()* function, we illustrate location estimation accuracy for $k = 3$ and $k = 1$ KNN training counts. Furthermore, model fit is assessed by mapping actual and predicted locations with lines connecting the two points for each respective new observation. This map is first drawn for the 3-NN predictions below.
 
 ```{r}
 estXYk3 = predXY(newSignals = onlineSummary[ , 6:11], 
@@ -624,6 +630,7 @@ floorErrorMap(estXYk3, onlineSummary[ , c("posX","posY")],
               trainPoints = trainPoints, AP = AP)
 ```
 
+The same is then done for the 1-NN predictions next. Note that upon comparison, errors are generally smaller for the 3-NN model than they are for 1-NN and that the largest errors tend to follow hallways rather than traverse large obstacles such as walls or other stationary barriers.
 
 ```{r}
 floorErrorMap(estXYk1, onlineSummary[ , c("posX","posY")], 
@@ -631,6 +638,7 @@ floorErrorMap(estXYk1, onlineSummary[ , c("posX","posY")],
 par(oldPar)
 ```
 
+As further and more concrete assessment, we assess fits from the 3-NN and 1-NN models by comparing their Sum of Squared Error (SSE) values as follows.
 
 ```{r}
 calcError = 
@@ -641,7 +649,9 @@ actualXY = onlineSummary[ , c("posX", "posY")]
 SSE <- sapply(list(estXYk1, estXYk3), calcError, actualXY)
 ```
 
-$k_1 SSE =$```r SSE[1]``` and $k_3 SSE =$ ```r SSE[2]```
+Doing so reveals $k_1 SSE =$```r SSE[1]``` and $k_3 SSE =$ ```r SSE[2]```. This correlates with the visual summary we extracted from the error maps above and confirms that 3 nearest neighbors more accurately predict location when compred to only one nearest neighbor. Even so, we still need to determine if there is another k value that would even more accurately predict device location.
+
+To do this, we choose to use v-fold cross validation 
 
 ```{r}
 set.seed(seed = seed)

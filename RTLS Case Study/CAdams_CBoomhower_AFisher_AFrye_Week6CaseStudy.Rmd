@@ -1,4 +1,8 @@
-#Real-Time Location System - Case Study Unit 6
+---
+title: "Real-Time Location System - Case Study Unit 6"
+output: html_notebook
+---
+
 ####Cory Adams, Chris Boomhower, Alexandra Fisher, Alex Frye
 ####MSDS 7333, October 11, 2017
 

@@ -758,7 +758,7 @@ $$
 \end{aligned}
 $$
 
-The findNN and predXY functions have been modified below
+The findNN function below has been modified from the previous version to also output the distance metrics utilized in determining the "closest" k points. Additionally, the predXY function has been modified to compute weights with the formula above and distance outputs from the findNN output. These weights are then multiplied against each k observation, respectively, then summed, to compute a weighted estimation by distance. These new calculations may allow locations of closer distances, to be more impactful than those further away instead of equal weighting amongst the k points.
 
 ```{r}
 
@@ -816,123 +816,10 @@ predXY = function(newSignals, newAngles, trainData,
   return(estXY)
 }
 ```
-text
-
-```{r}
-estXYk3 = predXY(newSignals = onlineSummary[ , 6:11], 
-                 newAngles = onlineSummary[ , 4], 
-                 offlineSummary, numAngles = 3, k = 3)
-
-estXYk1 = predXY(newSignals = onlineSummary[ , 6:11], 
-                 newAngles = onlineSummary[ , 4], 
-                 offlineSummary, numAngles = 3, k = 1)
-```
-
-
-```{r}
-floorErrorMap = function(estXY, actualXY, trainPoints = NULL, AP = NULL){
-  
-    plot(0, 0, xlim = c(0, 35), ylim = c(-3, 15), type = "n",
-         xlab = "", ylab = "", axes = FALSE)
-    box()
-    if ( !is.null(AP) ) points(AP, pch = 15)
-    if ( !is.null(trainPoints) )
-      points(trainPoints, pch = 19, col="grey", cex = 0.6)
-    
-    points(x = actualXY[, 1], y = actualXY[, 2], 
-           pch = 19, cex = 0.8 )
-    points(x = estXY[, 1], y = estXY[, 2], 
-           pch = 8, cex = 0.8 )
-    segments(x0 = estXY[, 1], y0 = estXY[, 2],
-             x1 = actualXY[, 1], y1 = actualXY[ , 2],
-             lwd = 2, col = "red")
-}
-
-trainPoints = offlineSummary[ offlineSummary$angle == 0 & 
-                              offlineSummary$mac == "00:0f:a3:39:e1:c0" ,
-                        c("posX", "posY")]
-
-
-```
-
-```{r}
-#pdf(file="GEO_FloorPlanK3Errors.pdf", width = 10, height = 7)
-oldPar = par(mar = c(1, 1, 1, 1))
-floorErrorMap(estXYk1, onlineSummary[ , c("posX","posY")], 
-              trainPoints = trainPoints, AP = AP)
-
-oldPar = par(mar = c(1, 1, 1, 1))
-par(oldPar)
-floorErrorMap(estXYk3, onlineSummary[ , c("posX","posY")], 
-              trainPoints = trainPoints, AP = AP)
-```
-
-```{r}
-calcError = 
-function(estXY, actualXY) 
-   sum( rowSums( (estXY - actualXY)^2) )
-
-actualXY = onlineSummary[ , c("posX", "posY")]
-SSE <- sapply(list(estXYk1, estXYk3), calcError, actualXY)
-```
-
-$k_1 SSE =$```r SSE[1]``` and $k_3 SSE =$ ```r SSE[2]```
 
 ```{r}
 set.seed(seed = seed)
 
-v = 11
-permuteLocs = sample(unique(offlineSummary$posXY))
-permuteLocs = matrix(permuteLocs, ncol = v, 
-                     nrow = floor(length(permuteLocs)/v))
-
-onlineFold = subset(offlineSummary, posXY %in% permuteLocs[ , 1])
-```
-
-```{r}
-head(onlineFold)
-onlineFold.ul <- nrow(unique(onlineFold[,2:3]))
-```
-Single fold contains data for ```r onlineFold.ul``` locations.
-
-```{r}
-reshapeSS = function(data, varSignal = "signal", 
-                     keepVars = c("posXY", "posX","posY"),
-                     sampleAngle = FALSE, 
-                     refs = seq(0, 315, by = 45)) {
-    
-  set.seed(seed = seed)
-    
-  byLocation =
-    with(data, by(data, list(posXY), 
-                  function(x) {
-                    if (sampleAngle) {
-                      x = x[x$angle == sample(refs, size = 1), ]}
-                    ans = x[1, keepVars]
-                    avgSS = tapply(x[ , varSignal ], x$mac, mean)
-                    y = matrix(avgSS, nrow = 1, ncol = 6,
-                               dimnames = list(ans$posXY,
-                                               names(avgSS)))
-                    cbind(ans, y)
-                  }))
-
-  newDataSS = do.call("rbind", byLocation)
-  return(newDataSS)
-}
-```
-
-
-```{r}
-offline = offline[ offline$mac != "00:0f:a3:39:dd:cd", ] #Look at all but MAC 00:0f:a3:39:dd:cd
-
-keepVars = c("posXY", "posX","posY", "orientation", "angle")
-
-onlineCVSummary = reshapeSS(offline, keepVars = keepVars, 
-                            sampleAngle = TRUE)
-```
-
-
-```{r}
 K = 20
 err = rep(0, K)
 
@@ -954,6 +841,8 @@ for (j in 1:v) {
 
 
 ```{r}
+set.seed(seed = seed)
+
 oldPar = par(mar = c(4, 3, 1, 1))
 plot(y = err, x = (1:K),  type = "l", lwd= 2,
      ylim = c(1200, 2100),
@@ -973,7 +862,8 @@ text(x = kMin - 2, y = rmseMin + 40,
 par(oldPar)
 ```
 
-Using $kmin =$ ```r kMin``` going forward (different from book's k=5 due to sampling during *offlineSummary*, *onlineCVSummary*, and *permuteLocs* computation)
+Using $kmin =$ ```r kMin``` going forward (different than the mean k location estimate approach of $k = 4$).
+
 ```{r}
 estXYk8 = predXY(newSignals = onlineSummary[ , 6:11], 
                  newAngles = onlineSummary[ , 4], 
@@ -993,13 +883,19 @@ SSE.k8 <- calcError(estXYk8, actualXY)
 $k_8 SSE =$```r SSE.k8``` through weighted distance estimation is `r abs(SSE.k8 - SSE.k4)` less than our previous reviews of $k_4 SSE$ at ```r SSE.k4``` from the mean location nearest neighbor estimation.
 
 ####KNN Comparison
+```{r}
+oldPar = par(mar = c(1, 1, 1, 1))
+par(oldPar)
+floorErrorMap(estXYk4, onlineSummary[ , c("posX","posY")], 
+              trainPoints = trainPoints, AP = AP)
 
+oldPar = par(mar = c(1, 1, 1, 1))
+par(oldPar)
+floorErrorMap(estXYk8, onlineSummary[ , c("posX","posY")], 
+              trainPoints = trainPoints, AP = AP)
+```
 ##Discussion and Future Works
 
-
-####KNN Comparison
-
-##Discussion and Future Works
 
 ## References
 [1] D. Lang and D. Nolan, Data Science in R: A Case Studies Approach to Computation Reasoning and Problem Solving. New York, New York: CRC Press.  

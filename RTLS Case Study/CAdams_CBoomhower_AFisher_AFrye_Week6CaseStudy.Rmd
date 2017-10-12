@@ -22,7 +22,7 @@ The steps used for this analysis were: 1) data clean up and EDA; 2) signal stren
 
 ####Data Import
 
-For this case study we will use a dataset created by the University of Mannheim and used in [book reference]. The "offline" dataset is an open-source dataset that can be found online at http://rdatasciencecases.org/Data/offline.final.trace.txt.  This "offline" dataset will be used as the training dataset to build our prediction model. The dataset contains 146080 data points, each data point consists of the following fields:
+For this case study we will use a dataset created by the University of Mannheim [1]. The "offline" dataset is an open-source dataset that can be found online at http://rdatasciencecases.org/Data/offline.final.trace.txt. This "offline" dataset will be used as the training dataset to build our prediction model. The dataset contains 146,080 data points and each data point consists of the following fields:
 
 t = timestamp for each data point
 id = MAC address of the device conducting the scan
@@ -31,12 +31,12 @@ degree = orientation of the device conducting the scan
 MACofResponse1 = MAC address of the first responding device
 MACofResponseN = MAC address of the Nth responding device
 
-Multiple devices can respond to the scanning device (MACofResponse1 to MACofResponseN) and each these responding devices provide the following data:
+Multiple devices can respond to the scanning device (MACofResponse1 to MACofResponseN) and each of the responding devices provide the following data:
   - SignalStrength (Decibel-milliwatts dBm)
   - Frequency
   - Mode (access point=3, adhoc mode=1)
   
-The code below reads in the "offline" dataset and outputs some simple observations about how many lines in the file are data vs. comments.
+The code below reads in the "offline" dataset and outputs some simple observations about how many lines in the file are data versus comments.
 
 ```{r}
 # Configure number format to two decimal places only
@@ -60,9 +60,7 @@ paste("Total # of non-comment lines =", length(txt) - sum(substr(txt, 1, 1) == "
 
 This section of code allows us to manipulate the data with the goal of having it be easier to interpret and manage. Currently, the data is just a bunch of raw text lines with ";" separators between records.
 
-The code below creates a function that allows us to iteratively create matrices for each line in the "offline" dataset and merge into a data frame we can begin to organize for analysis. All comments have been removed and the dataset is now represented as a data frame instead of raw text.
-
-The data frame is now 1181628 rows and 10 columns.
+The code below creates a function that allows us to iteratively create matrices for each line in the "offline" dataset and merge into a data frame we can begin to organize for analysis. All comments have been removed and the dataset is now represented as a data frame instead of raw text. The data frame is now 1,181,628 rows and 10 columns.
 
 ```{r}
 lines = txt[ substr(txt, 1, 1) != "#" ]
@@ -92,11 +90,9 @@ dim(offline)
 
 ####Cleaning the Data and Building a Representation for Analysis
 
-In the previous section we cleaned the data and created a data frame named "offline" consisting of 1181628 rows and 10 columns. While the data is now organized, we must still remove unwanted/unnecessary rows, provide identifiable names to the variables, and convert the variable values to their proper type. At this point all the variables are represented as strings, and our data clearly has several numerical values.
+In the previous section we cleaned the data and created a data frame named "offline" consisting of 1,181,628 rows and 10 columns. While the data is now organized, we must still remove unwanted/unnecessary rows, provide identifiable names to the variables, and convert the variable values to their proper type. At this point all the variables are represented as strings and our data clearly has several numerical values.
 
-The code below provides each of the 10 columns in the data frame a name and coverts the time, position, and signal variables to be numeric types. This is key for comparison and correlation of these variables. Since adhoc devices will not be used further, any rows with adhoc data are removed from the data frame. This also allows us to drop the type row since we now know all the types are access point. The output below demonstrates the data cleanup and variable conversions discussed.
-
-The result is 978443 rows and 8 columns in our "offline" data frame.
+The code below provides a name for each of the 10 columns in the data frame and converts the time, position, and signal variables to numeric types. This is key for comparison and correlation of these variables. Since ad-hoc devices will not be used further, any rows with ad-hoc data are removed from the data frame. This also allows us to drop the type row since we now know all the types are access points. The output below demonstrates the data cleanup and variable conversions discussed. The result is 978,443 rows and 8 columns in our "offline" data frame.
 
 ```{r}
 names(offline) = c("time", "scanMac", "posX", "posY", "posZ", 
@@ -127,11 +123,9 @@ offline = offline[ , !(names(offline) %in% c("scanMac", "posZ"))]
 
 ####EDA - Orientation
 
-Prior to conducting analysis of our data frame, we should explore some of the key variables to better understand what they contain and how we can use them. The first variable we explore is the Orientation variable.
+Prior to conducting analysis of our data frame, we must explore some of the key variables to better understand what they contain and how we can use them. The first variable we explore is the orientation variable.
 
-A quick look at the unique values in the orientation column show there are 203, while we were expecting only 8 (based on 45 degree increments). The Empirical CDF figure below shows that while the values are not strictly in 45 degree increments, they are close to one of the expected values as shown in the box plot figure below. Meaning, while they are not exact they are close to a target orientation value.
-
-The code below takes the orientation value from each row and assigns it to the closest expected orientation value.
+A quick look at the unique values in the orientation column show there are 203 in total, although we were expecting only 8 (based on 45 degree increments). The Empirical CDF figure below shows that while the values are not strictly in 45 degree increments, they are close to one of the expected values as shown in the box plot figure below. This means that while they are not exact, they are close to a target orientation value. The code below takes the orientation value from each row and assigns it to the closest expected orientation value.
 
 ```{r}
 length(unique(offline$orientation))
@@ -172,9 +166,9 @@ par(oldPar)
 
 ####EDA - MAC Addresses
 
-The next key variable in the dataset we will explore is the MAC address. Analysis shows 12 MAC address, while the experiment design only called for and discussed 6 MAC addresses on the network. The code below shows each MAC address and the number corresponding records. Clearly, there is a large variance between the MAC addresses with a high number of records vs. MAC addresses with a low number of records. In this case, the top 7 MAC addresses were kept in the dataset and the rest removed.
+The next key variable in the dataset we will explore is the MAC address. Analysis shows 12 MAC addresses, while the experiment design only called for and discussed 6 MAC addresseses on the network. The code below shows each MAC address and the number corresponding records. Clearly there is a large variance between MAC addresses with a high number of records versus MAC addresses with a low number of records. In this case, the top 7 MAC addresses were kept in the dataset and the rest were removed.
 
-The code below shows the unique identifier for MAC address corresponds with the identifier for channel. Meaning these two values are essentially the same in our analysis and only one is necessary. No statistical significance will be gained by keeping both, if anything this could lead to unwanted correlation between variables.
+The code below shows that the unique identifier for the MAC address corresponds with the identifier for channel, meaning these two values are essentially the same in our analysis and only one is necessary. No statistical significance will be gained by keeping both and if anything this could lead to unwanted correlation between variables.
 
 ```{r}
 c(length(unique(offline$mac)), length(unique(offline$channel)))
@@ -191,7 +185,7 @@ offline = offline[ , "channel" != names(offline)]
 ```
 ####EDA - Hand-Held Device Position
 
-The final variable we will explore is the position variable, or where the device was located within the experiment at the time of the data point. Each position variable record actual contains an X and Y value. The code below computes the total possible number of combinations for X and Y (476), checks if the values are null (310) and finally outputs non-null values (166). Knowing there are 166 positions where data was recorded, we can calculate the number of data points collected at each position. The matrix below shows the exact counts. While the number of data points per position are not equal, they are relatively close (~5,500). This means our data shouldn't be biased by the position variable.
+The final variable we will explore is the position variable, or where the device was located within the experiment at the time of the data point. Each position variable recorded actually contains an X and Y value. The code below computes the total possible number of combinations for X and Y (476), checks if the values are null (310), and finally outputs non-null values (166). Knowing there are 166 positions where data was recorded, we can calculate the number of data points collected at each position. The matrix below shows the exact counts. While the number of data points per position are not equal, they are relatively close (~5,500). This means our data should not be biased by the position variable.
 
 ```{r}
 locDF = with(offline, 
@@ -232,7 +226,7 @@ par(oldPar)
 
 The previous steps (code blocks) provided clear instructions on how to read, structure, explore, and clean data from an external source.
 
-Below is an optimized function (readData) that will allow us to download the same data and replicate the process shown above. The readData function belows completes all the tasks shown in "Data Import", "Data Cleanup", "Cleaning the Data and Building a Representation for Analysis", "EDA - Orientation", "EDA - MAC Addresses", and "EDA - Hand-Held Device Position" efficiently. The output of this one function results in the same dataset ("offline") as displayed by comparing the dataset output by the readData function ("offlineRedo"). The two datasets are identical, but this function is easier to update and deploy.
+Below is an optimized function (readData) that will allow us to download the same data and replicate the process shown above. The readData function below completes all the tasks shown in "Data Import", "Data Cleanup", "Cleaning the Data and Building a Representation for Analysis", "EDA - Orientation", "EDA - MAC Addresses", and "EDA - Hand-Held Device Position" efficiently. The output of this function results in the same dataset ("offline") as displayed by comparing the dataset output by the readData function ("offlineRedo"). The two datasets are identical, but this function is easier to update and deploy.
 
 ```{r}
 readData = 

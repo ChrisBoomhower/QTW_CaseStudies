@@ -279,9 +279,7 @@ identical(offline, offlineRedo)
 
 ####Signal Strength Analysis - Distribution of Signal Strength
 
-The variable we want to understand from this experiment is the signal strength. Is the signal strength consistent across distances? Is it significantly impacted by the other variables we collected?
-
-We start by looking at the signal strength variable characteristics. The boxplot below shows the variance of the signal strength with multiple combinations of position and orientation. We also output a density plot to observe the variance of these combinations, as expected there is a mixture of normal and skewed distributions. A closer look at the variance between signal strength and position show something interesting, strong signals have a higher variance while weaker signals have a lower variance. This data was output using a summary of position, orientation, and access point combinations we will refer to as the "offlineSummary." 
+The variable we want to understand from this experiment is the signal strength. Is the signal strength consistent across distances? Is it significantly impacted by the other variables we collected? We start by looking at the signal strength variable characteristics. The boxplot below shows the variance of the signal strength with multiple combinations of position and orientation. We also output a density plot to observe the variance of these combinations and as expected, there is a mixture of normal and skewed distributions. A closer look at the variance between signal strength and position show something interesting, which is that strong signals have a higher variance while weaker signals have a lower variance. This data was output using a summary of position, orientation, and access point combinations we will refer to as the "offlineSummary." 
 
 ```{r}
 library(lattice)
@@ -364,9 +362,9 @@ par(oldPar)
 
 #### Relationship Between Signal and Distance
 
-The code below begins by attempting to create a contour plot or heat map to help identify the actual areas of the floor plan where signals are stronger. To do this for each MAC address, orientation, and distance combination the summary statistic "offlineSummary", developed in the last section, is used. The heatmap below shows this contour plot for 2 MAC addresses and two orientations (0, 135). While the MAC address has never been associated with the location of the access point, we can use the contour plot to make inferences based on the floor plan.
+The code below begins by attempting to create a contour plot or heat map to help identify the actual areas of the floor plan where signals are stronger. To do this for each MAC address, orientation, and distance combination, the summary statistic "offlineSummary" developed in the last section is used. The heatmap below shows this contour plot for two MAC addresses and two orientations (0, 135). While the MAC address has never been associated with the location of the access point, we can use the contour plot to make inferences based on the floor plan.
 
-Now that we are able to match the MAC/access point with the floor plan, we can investigate the relationship between the position variable and the signal strength. To show this we output a scatter plot using the distance and signal strength, along with each of the 8 developed orientations. The scatter plot seems to be similar across the combinations. 
+Now that we are able to match the MAC/access point with the floor plan, we can investigate the relationship between the position variable and the signal strength. To show this, we output a scatter plot using the distance and signal strength, along with each of the 8 developed orientations. The scatter plot seems to be similar across the combinations. 
 
 ```{r}
 oneAPAngle = subset(offlineSummary, 

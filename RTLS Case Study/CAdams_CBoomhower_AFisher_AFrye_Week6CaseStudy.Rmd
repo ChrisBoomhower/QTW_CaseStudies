@@ -18,7 +18,9 @@ Advanced clustering methods are then performed on the reference dataset through 
 
 ##Methods
 
-The steps used for this analysis were: 1) data clean up and EDA; 2) signal strength analysis; 3) implementation of kNN average weighting approach; 4) implementation of kNN distance weighting approach; & 5) comparison of kNN approaches to determine the best location prediction method. Note that code used includes modified versions of R code function examples found in Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving, Chapter 1, pages 3-40 [1]. 
+The steps used for this analysis were: 1) data clean up and EDA; 2) signal strength analysis; 3) implementation of kNN average weighting approach; 4) implementation of kNN distance weighting approach; & 5) comparison of kNN approaches to determine the best location prediction method.
+
+*Note that code used includes modified versions of R code function examples found in Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving, Chapter 1, pages 3-40 [1].*
 
 ####Data Import
 
@@ -92,7 +94,7 @@ dim(offline)
 
 In the previous section we cleaned the data and created a data frame named "offline" consisting of 1,181,628 rows and 10 columns. While the data is now organized, we must still remove unwanted/unnecessary rows, provide identifiable names to the variables, and convert the variable values to their proper type. At this point all the variables are represented as strings and our data clearly has several numerical values.
 
-The code below provides a name for each of the 10 columns in the data frame and converts the time, position, and signal variables to numeric types. This is key for comparison and correlation of these variables. Since ad-hoc devices will not be used further, any rows with ad-hoc data are removed from the data frame. This also allows us to drop the type row since we now know all the types are access points. The output below demonstrates the data cleanup and variable conversions discussed. The result is 978,443 rows and 8 columns in our "offline" data frame.
+The code below provides a name for each of the 10 columns in the data frame and converts the time, position, and signal variables to numeric types. This is key for comparison and correlation of these variables. Since ad-hoc devices will not be used further, any rows with ad-hoc data are removed from the data frame. This also allows us to drop the type row since we now know all the types are access points. The output below demonstrates the data cleanup and variable conversions discussed. The result is 978,443 rows and 9 columns in our "offline" data frame.
 
 ```{r}
 names(offline) = c("time", "scanMac", "posX", "posY", "posZ", 
@@ -125,10 +127,10 @@ offline = offline[ , !(names(offline) %in% c("scanMac", "posZ"))]
 
 Prior to conducting analysis of our data frame, we must explore some of the key variables to better understand what they contain and how we can use them. The first variable we explore is the orientation variable.
 
-A quick look at the unique values in the orientation column show there are 203 in total, although we were expecting only 8 (based on 45 degree increments). The Empirical CDF figure below shows that while the values are not strictly in 45 degree increments, they are close to one of the expected values as shown in the box plot figure below. This means that while they are not exact, they are close to a target orientation value. The code below takes the orientation value from each row and assigns it to the closest expected orientation value.
+A quick look at the unique values in the orientation column show there are ```r len.un.or``` in total, although we were expecting only 8 (based on 45 degree increments). The Empirical CDF figure below shows that while the values are not strictly in 45 degree increments, they are close to one of the expected values as shown in the box plot figure below. This means that while they are not exact, they are close to a target orientation value. The code below takes the orientation value from each row and assigns it to the closest expected orientation value.
 
 ```{r}
-length(unique(offline$orientation))
+len.un.or <- length(unique(offline$orientation))
 
 #pdf(file = "Geo_ECDFOrientation.pdf", width = 10, height = 7)
 oldPar = par(mar = c(4, 4, 1, 1))
@@ -138,14 +140,6 @@ plot(ecdf(offline$orientation), pch = 19, cex = 0.3,
 axis(2)
 axis(side = 1, at = seq(0, 360, by = 45))
 par(oldPar)
-#dev.off()
-
-# pdf(file = "Geo_DensityOrientation.pdf", width = 10, height = 5)
-# oldPar = par(mar = c(4, 4, 1, 1))
-# plot(density(offline$orientation, bw = 2), 
-#  xlab = "orientation", main = "")
-# par(oldPar)
-# dev.off()
 
 roundOrientation = function(angles) {
   refs = seq(0, by = 45, length  = 9)
@@ -155,13 +149,11 @@ roundOrientation = function(angles) {
 
 offline$angle = roundOrientation(offline$orientation)
 
-#pdf(file = "Geo_BoxplotAngle.pdf", width = 10)
 oldPar = par(mar = c(4, 4, 1, 1))
 with(offline, boxplot(orientation ~ angle,
     xlab = "nearest 45 degree angle",
     ylab="orientation"))
 par(oldPar)
-#dev.off()
 ```
 
 ####EDA - MAC Addresses
@@ -173,31 +165,28 @@ The code below shows that the unique identifier for the MAC address corresponds 
 ```{r}
 c(length(unique(offline$mac)), length(unique(offline$channel)))
 
-table(offline$mac)
-
 subMacs = names(sort(table(offline$mac), decreasing = TRUE))[1:7]
 offline = offline[ offline$mac %in% subMacs, ]
 
 macChannel = with(offline, table(mac, channel))
-apply(macChannel, 1, function(x) sum(x > 0))
 
 offline = offline[ , "channel" != names(offline)]
 ```
 ####EDA - Hand-Held Device Position
 
-The final variable we will explore is the position variable, or where the device was located within the experiment at the time of the data point. Each position variable recorded actually contains an X and Y value. The code below computes the total possible number of combinations for X and Y (476), checks if the values are null (310), and finally outputs non-null values (166). Knowing there are 166 positions where data was recorded, we can calculate the number of data points collected at each position. The matrix below shows the exact counts. While the number of data points per position are not equal, they are relatively close (~5,500). This means our data should not be biased by the position variable.
+The final variable we will explore is the position variable, or where the device was located within the experiment at the time of the data point. Each position variable recorded actually contains an X and Y value. The code below computes the total possible number of combinations for X and Y (```r len.locDF```), checks if the values are null (```r sum.locDF.null```), and finally outputs non-null values (```r len.locDF.nonull```). Knowing there are 166 positions where data was recorded, we can calculate the number of data points collected at each position. The matrix below shows the exact counts. While the number of data points per position are not equal, they are relatively close (~5,500). This means our data should not be biased by the position variable.
 
 ```{r}
 locDF = with(offline, 
              by(offline, list(posX, posY), function(x) x))
-length(locDF)
+len.locDF = length(locDF)
 
 
-sum(sapply(locDF, is.null))
+sum.locDF.null = sum(sapply(locDF, is.null))
 
 locDF = locDF[ !sapply(locDF, is.null) ]
 
-length(locDF)
+len.locDF.nonull = length(locDF)
 
 locCounts = sapply(locDF, nrow)
 
@@ -205,13 +194,8 @@ locCounts = sapply(locDF,
                    function(df) 
                      c(df[1, c("posX", "posY")], count = nrow(df)))
 
-class(locCounts)
-
-dim(locCounts)
-
 locCounts[ , 1:8]
 
-#pdf(file = "Geo_XYByCount.pdf", width = 10)
 oldPar = par(mar = c(3.1, 3.1, 1, 1))
 
 locCounts = t(locCounts)
@@ -219,14 +203,13 @@ plot(locCounts, type = "n", xlab = "", ylab = "")
 text(locCounts, labels = locCounts[,3], cex = .8, srt = 45)
 
 par(oldPar)
-#dev.off()
 ```
 
 ####Perform Cleanup as a Function
 
 The previous steps (code blocks) provided clear instructions on how to read, structure, explore, and clean data from an external source.
 
-Below is an optimized function (readData) that will allow us to download the same data and replicate the process shown above. The readData function below completes all the tasks shown in "Data Import", "Data Cleanup", "Cleaning the Data and Building a Representation for Analysis", "EDA - Orientation", "EDA - MAC Addresses", and "EDA - Hand-Held Device Position" efficiently. The output of this function results in the same dataset ("offline") as displayed by comparing the dataset output by the readData function ("offlineRedo"). The two datasets are identical, but this function is easier to update and deploy.
+Below is an optimized function (readData) that will allow us to download the same data and replicate the process shown above. The *readData()* function below completes all the tasks shown in "Data Import", "Data Cleanup", "Cleaning the Data and Building a Representation for Analysis", "EDA - Orientation", "EDA - MAC Addresses", and "EDA - Hand-Held Device Position" efficiently. The output of this function results in the same dataset ("offline") as displayed by comparing the dataset output by the readData function ("offlineRedo"). The two datasets are identical [identical(offline, offlineRedo) is ```r sameness```], but this function is easier to update and deploy.
 
 ```{r}
 readData = 
@@ -272,7 +255,7 @@ readData =
 
 offlineRedo = readData()
 
-identical(offline, offlineRedo)
+sameness = identical(offline, offlineRedo)
 ```
 
 ##Results
@@ -289,11 +272,7 @@ bwplot(signal ~ factor(angle) | mac, data = offline,
        layout = c(2,3))
 
 par(oldPar)
-#dev.off()
 
-summary(offline$signal)
-
-#pdf(file = "Geo_DensitySignalByMacAngle.pdf", width = 8, height = 12)
 oldPar = par(mar = c(3.1, 3, 1, 1))
 
 densityplot( ~ signal | mac + factor(angle), data = offline,
@@ -302,7 +281,6 @@ densityplot( ~ signal | mac + factor(angle), data = offline,
              bw = 0.5, plot.points = FALSE)
 
 par(oldPar)
-#dev.off()
 
 offline = offline[ offline$mac != "00:0f:a3:39:dd:cd", ]
 
@@ -326,7 +304,6 @@ signalSummary =
 
 offlineSummary = do.call("rbind", signalSummary)     
 
-#pdf(file = "Geo_BoxplotSignalSDByAvg.pdf", width = 10)
 oldPar = par(mar = c(3.1, 3, 1, 1))
 
 breaks = seq(-90, -30, by = 5)
@@ -336,9 +313,7 @@ bwplot(sdSignal ~ cut(avgSignal, breaks = breaks),
        xlab = "Mean Signal", ylab = "SD Signal")
 
 par(oldPar)
-#dev.off()
 
-#pdf(file = "Geo_ScatterMean-Median.pdf", width = 10)
 oldPar = par(mar = c(4.1, 4.1, 1, 1))
 
 with(offlineSummary,
@@ -357,7 +332,6 @@ lo.obj.pr = predict(lo.obj, newdata = data.frame(num = (70:120)))
 lines(x = 70:120, y = lo.obj.pr, col = "#4daf4a", lwd = 2)
 
 par(oldPar)
-#dev.off()
 ```
 
 #### Relationship Between Signal and Distance
@@ -393,10 +367,6 @@ surfaceSS = function(data, mac, angle = 45) {
 }
 
 parCur = par(mfrow = c(2,2), mar = rep(1, 4))
-
-mapply(surfaceSS, mac = subMacs[ rep(c(5, 1), each = 2) ], 
-       angle = rep(c(0, 135), 2),
-       data = list(data = offlineSummary))
  
 par(parCur)
 
@@ -407,8 +377,6 @@ AP = matrix( c( 7.5, 6.3, 2.5, -.8, 12.8, -2.8,
             ncol = 2, byrow = TRUE,
             dimnames = list(subMacs[ -2 ], c("x", "y") ))
 
-AP
-
 diffs = offlineSummary[ , c("posX", "posY")] - 
           AP[ offlineSummary$mac, ]
 
@@ -418,14 +386,12 @@ xyplot(signal ~ dist | factor(mac) + factor(angle),
        data = offlineSummary, pch = 19, cex = 0.3,
        xlab ="distance")
 
-#pdf(file="Geo_ScatterSignalDist.pdf", width = 7, height = 10)
 oldPar = par(mar = c(3.1, 3.1, 1, 1))
 library(lattice)
 xyplot(signal ~ dist | factor(mac) + factor(angle), 
        data = offlineSummary, pch = 19, cex = 0.3,
        xlab ="distance")
 par(oldPar)
-#dev.off()
 ```
 
 
@@ -473,8 +439,6 @@ byLoc = with(online,
 
 onlineSummary = do.call("rbind", byLoc)  
 
-#dim(onlineSummary)
-#names(onlineSummary)
 head(onlineSummary)
 ```
 
@@ -604,7 +568,6 @@ trainPoints = offlineSummary[ offlineSummary$angle == 0 &
                               offlineSummary$mac == "00:0f:a3:39:e1:c0" ,
                         c("posX", "posY")]
 
-#pdf(file="GEO_FloorPlanK3Errors.pdf", width = 10, height = 7)
 oldPar = par(mar = c(1, 1, 1, 1))
 floorErrorMap(estXYk3, onlineSummary[ , c("posX","posY")], 
               trainPoints = trainPoints, AP = AP)
@@ -898,7 +861,7 @@ floorErrorMap(estXYk8, onlineSummary[ , c("posX","posY")],
 Our observations in the above visuals may be confirmed by comparing SSE values for each method. $k_{8WeightedDistance}SSE =$```r SSE.k8``` through weighted distance estimation is ```r abs(SSE.k8 - SSE.k4)``` less than our previous reviews of $k_{4AverageLocation}SSE$ at ```r SSE.k4``` from the mean location nearest neighbor estimation. This aligns with our observations made from the visual error maps; weighted distance estimation provides more accurate results overall in the model. These weighted distances allow those k observations that are heavily skewed, with few observations of close distance and large number of observations of large distance, to be appropriately computed without biased input from the further distance points. 
 
 ##Discussion and Future Works
-As with outdoor GPS location services, RTLS ecosystems are becoming more ubiquitous. As RTLS usage increases, the need for accurate and innovative indoor location prediction models increases as well. In this case study, we've outlined the process of wrangling and structuring both offline training data as well as online training and test data, have performed detailed exploratory data analysis, and have generated kNN models with both averaged X-Y coordinates as well as weighted coordinates as a function of distance in the form of RSSI. While both models provided accurate estimates of device location, our model with weighted coordinates provided a model with the least error. If implementing our RTLS system in production, we would thus choose our weighted coordinates as model configuration for location estimation.
+As with outdoor GPS location services, RTLS ecosystems are becoming more ubiquitous. As RTLS usage increases, the need for accurate and innovative indoor location prediction models increases as well. In this case study, we've outlined the process of wrangling and structuring both offline training data as well as online training and test data, have performed detailed exploratory data analysis, and have generated kNN models with both averaged X-Y coordinates as well as weighted coordinates as a function of distance in the form of RSSI. While both models provided accurate estimates of device location, our model with weighted coordinates exhibited the least error. If implementing our RTLS system in production, we would thus choose our weighted coordinates as model configuration for location estimation.
 
 As extension of this effort, future works would include both modifying our distance metrics as well as investigating other prediction algorithms to accomplish similar or better estimates. In terms of distance metrics, we might consider evaluating Chebyshev or Manhattan distance measures and comparing their estimation errors against those of kNN. Furthermore, new modeling methodologies might include artificial neural networks, K-Means clustering, or affinity propagation. Again, the estimation error of these prediction methods would be evaluated and compared against kNN as well.
 

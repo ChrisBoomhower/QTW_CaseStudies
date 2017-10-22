@@ -23,6 +23,36 @@ distributions change over the years? Was it a gradual change?***
 source('DataExtractAndClean.R', echo = FALSE)
 ```
 
+####Load Libraries
+```{r messages=FALSE}
+library(ggplot2)
+library(plotly)
+library(manhattanly)
+```
+
+
+First, we remove runners under the age of 10 or with unrealistic run times.
+```{r}
+cbMenSub = cbMen[cbMen$runTime > 30 & !is.na(cbMen$age) & cbMen$age >= 10, ]
+ageCat = cut(cbMenSub$age, breaks = c(seq(10, 80, 10), 90))
+cat("Binned age counts:\n")
+table(ageCat)
+```
+
+```{r}
+# Subset in order to color by year
+cbMenDens <- cbMenSub
+cbMenDens$year <- as.character(cbMenDens$year)
+
+
+age.d = ggplot(cbMenDens, aes(age, color = year)) + geom_density()
+age.d = ggplotly(age.d) #Convert to plotly version
+age.d
+```
+
+
+
+
 ##Discussion and Future Works
 
 ## References

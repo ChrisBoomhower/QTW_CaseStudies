@@ -27,7 +27,6 @@ source('DataExtractAndClean.R', echo = FALSE)
 ```{r messages=FALSE}
 library(ggplot2)
 library(plotly)
-library(manhattanly)
 ```
 
 

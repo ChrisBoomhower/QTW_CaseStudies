@@ -12,8 +12,10 @@ quantile plots, boxplots, and density curves to make your comparisons. How do th
 distributions change over the years? Was it a gradual change?***
 
 ##Abstract
+In this case study, race results for the Cherry Blossom Ten Mile Run from 1999 to 2012 are used to study how people’s physical performance changes with age [1]. The focus of the study involves scraping the Web for free and publicly published data and then getting that data into the correct format. In order to investigate how age distributions change over the years, age distribution for all runners across 14 years is compared; however, what information is recorded and how the data is formatted changes each year so close attention is paid first to formatting the data. The R language is leveraged to appropriately format the data via statistical analysis and examining summary statistics and plots. Following data acquisition and successfully reading tables of race results into R, results are analyzed and compared using quantile-quantile plots, boxplots, and density curves. In this way, we are able to visualize the data for tens of thousands of observations to explore the performance-age relationship. [insert results / final outcome]
 
 ##Introduction
+Race results for the Cherry Blossom Ten Mile Run are available to the public online at http://www.cherryblossom.org/. 
 
 ##Methods
 

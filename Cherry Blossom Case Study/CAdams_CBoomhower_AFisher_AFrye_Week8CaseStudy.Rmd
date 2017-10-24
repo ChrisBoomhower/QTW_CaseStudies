@@ -27,10 +27,11 @@ source('DataExtractAndClean.R', echo = FALSE)
 ```{r messages=FALSE}
 library(ggplot2)
 library(plotly)
+library(plyr)
 ```
 
 
-First, we remove runners under the age of 10 or with unrealistic run times.
+First, we remove runners under the age of 10 or with unrealistic run times (binning only meant to represent general distribution).
 ```{r}
 cbMenSub = cbMen[cbMen$runTime > 30 & !is.na(cbMen$age) & cbMen$age >= 10, ]
 ageCat = cut(cbMenSub$age, breaks = c(seq(10, 80, 10), 90))
@@ -40,16 +41,89 @@ table(ageCat)
 
 ```{r}
 # Subset in order to color by year
-cbMenDens <- cbMenSub
-cbMenDens$year <- as.character(cbMenDens$year)
+cbMensPlot <- cbMenSub
+cbMensPlot$year <- as.character(cbMensPlot$year)
 
 
-age.d = ggplot(cbMenDens, aes(age, color = year)) + geom_density()
+age.d = ggplot(cbMensPlot, aes(age, color = year)) + geom_density()
 age.d = ggplotly(age.d) #Convert to plotly version
 age.d
 ```
 
+```{r}
+# calculate the normal theoretical quantiles per group
+cbMensPlotQQ <- ddply(.data = cbMensPlot, .variables = .(year),
+                      function(dsub){
+                          q <- qqnorm(dsub$age, plot = FALSE)
+                          dsub$xq <- q$x
+                          dsub
+                      })
 
+age.qq = ggplot(data = cbMensPlotQQ, aes(x = xq, y = age, color = year)) +
+                geom_point() +
+                geom_smooth(method = "lm", se = FALSE) +
+                xlab("Normal Theoretical Quantiles") +
+                ylab("Normal Data Quantiles")
+age.qq = ggplotly(age.qq)
+age.qq
+```
+
+```{r fig.width=12, fig.asp=1.5}
+
+plot.list <- list()
+i = 1
+#color.vect <- c('#D32F2F', '#C2185B', '#7B1FA2', '#512DA8', '#303F9F', '#1976D2', '#0288D1',
+#                '#0097A7', '#00796B', '#388E3C', '#689F38', '#AFB42B', '#FBC02D', '#FFA000')
+
+for(yr in unique(cbMensPlot$year)){
+    cbMensPlotQQ <- ddply(.data = subset(cbMensPlot, cbMensPlot$year == yr), .variables = .(year),
+                          function(dsub){
+                              q <- qqnorm(dsub$age, plot = FALSE)
+                              dsub$xq <- q$x
+                              dsub
+                          })
+    
+    age.qq = ggplot(data = cbMensPlotQQ, aes(x = xq, y = age, color = year)) +
+                    geom_point() +
+                    geom_smooth(method = "lm", se = FALSE) +
+                    xlab("Normal Theoretical Quantiles") +
+                    ylab("Normal Data Quantiles")
+    
+    #ggplot doesn't like to evaluate vector indexed contents so having to explicitly write color values line-by-line
+    if(i==1) plot.list[[i]] <- age.qq + scale_color_manual(values='#D32F2F')
+    if(i==2) plot.list[[i]] <- age.qq + scale_color_manual(values='#C2185B')
+    if(i==3) plot.list[[i]] <- age.qq + scale_color_manual(values='#7B1FA2')
+    if(i==4) plot.list[[i]] <- age.qq + scale_color_manual(values='#512DA8')
+    if(i==5) plot.list[[i]] <- age.qq + scale_color_manual(values='#303F9F')
+    if(i==6) plot.list[[i]] <- age.qq + scale_color_manual(values='#1976D2')
+    if(i==7) plot.list[[i]] <- age.qq + scale_color_manual(values='#0288D1')
+    if(i==8) plot.list[[i]] <- age.qq + scale_color_manual(values='#0097A7')
+    if(i==9) plot.list[[i]] <- age.qq + scale_color_manual(values='#00796B')
+    if(i==10) plot.list[[i]] <- age.qq + scale_color_manual(values='#388E3C')
+    if(i==11) plot.list[[i]] <- age.qq + scale_color_manual(values='#689F38')
+    if(i==12) plot.list[[i]] <- age.qq + scale_color_manual(values='#AFB42B')
+    if(i==13) plot.list[[i]] <- age.qq + scale_color_manual(values='#FBC02D')
+    if(i==14) plot.list[[i]] <- age.qq + scale_color_manual(values='#FFA000')
+    
+    #plot.list[[i]] <- age.qq + scale_color_manual(values=eval(as.character(color.vect[i])))
+    i = i + 1
+}
+
+grid.arrange(plot.list[[1]], 
+             plot.list[[2]],
+             plot.list[[3]],
+             plot.list[[4]],
+             plot.list[[5]],
+             plot.list[[6]],
+             plot.list[[7]],
+             plot.list[[8]],
+             plot.list[[9]],
+             plot.list[[10]],
+             plot.list[[11]],
+             plot.list[[12]],
+             plot.list[[13]],
+             plot.list[[14]], ncol=2)
+```
 
 
 ##Discussion and Future Works

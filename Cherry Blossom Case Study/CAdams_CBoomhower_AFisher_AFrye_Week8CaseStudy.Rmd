@@ -30,6 +30,8 @@ source('DataExtractAndClean.R', echo = FALSE)
 library(ggplot2)
 library(plotly)
 library(plyr)
+library(grid)
+library(gridExtra)
 ```
 
 

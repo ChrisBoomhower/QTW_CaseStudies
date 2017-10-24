@@ -32,16 +32,49 @@ library(plotly)
 library(plyr)
 library(grid)
 library(gridExtra)
+library(formattable)
 ```
 
+####Data Cleanup
+```{r echo = "false"}
+lenLRT<-nrow(cbMen[cbMen$runTime < 30, ])
+lenNAAG<-nrow(cbMen[is.na(cbMen$age), ])
+lenLAG<-nrow(cbMen[cbMen$age < 10 & !is.na(cbMen$age), ])
+lenTotDirty<-nrow(cbMen)
+lenTotClean<-nrow(cbMen[cbMen$runTime > 30 & !is.na(cbMen$age) & cbMen$age >= 10, ])
+```
 
-First, we remove runners under the age of 10 or with unrealistic run times (binning only meant to represent general distribution).
+Before beginning our analysis of age distributions, we have some preliminary data cleanup to perform on multiple scenarios, as this analysis is meant to represent the general population less outliers. First, there is ```r lenLRT``` observation which appears to contain an outlier for its run-time; a 70 year old with a run-time of 1.5 which is likely either due to a non-starter or a data entry error. 
+
+```{r echo = "false"}
+formattable(cbMen[cbMen$runTime < 30, ])
+```
+
+Second, we identify ```r lenNAAG``` observations which have null values for age. These records are unable to be visualized for age distributions, and thus removed as well. 
+
+```{r echo = "false"}
+formattable(cbMen[is.na(cbMen$age), ])
+```
+
+Lastly, we identify ```r lenLAG``` observations with an age less than 10. Although there could be a young child in the run,  there are several of these values with an age between 0 and 4, leaving us untrusting of the other three values remaining for 8 and 9 year olds. Due to this, we have decide to cut off the age lower limit at 10 years old to describe general population. 
+
+```{r echo = "false"}
+formattable(cbMen[cbMen$age < 10 & !is.na(cbMen$age), ])
+```
+
+With these few outliers removed, we transform from ````r lenTotDirty```` to ````r lenTotClean```` observations. We are now ready to move forward with our analysis of age distributions amongst each year.
+
+####Density Curve
+
+binned age counts:
+
 ```{r}
 cbMenSub = cbMen[cbMen$runTime > 30 & !is.na(cbMen$age) & cbMen$age >= 10, ]
 ageCat = cut(cbMenSub$age, breaks = c(seq(10, 80, 10), 90))
-cat("Binned age counts:\n")
 table(ageCat)
 ```
+
+text 
 
 ```{r}
 # Subset in order to color by year
@@ -68,7 +101,7 @@ age.qq = ggplot(data = cbMensPlotQQ, aes(x = xq, y = age, color = year)) +
                 geom_smooth(method = "lm", se = FALSE) +
                 xlab("Normal Theoretical Quantiles") +
                 ylab("Normal Data Quantiles")
-age.qq = ggplotly(age.qq)
+#age.qq = ggplotly(age.qq)
 age.qq
 ```
 

@@ -172,16 +172,17 @@ grid.arrange(plot.list[[1]],
 ```{r}
 str(cbMenSub)
 
-boxplot(cbMenSub$age ~ cbMenSub$year, ylab = "Age", xlab = "Year", col = c
+bp <- boxplot(cbMenSub$age ~ cbMenSub$year, ylab = "Age", xlab = "Year", col = c
 ("red","sienna","palevioletred1","royalblue2","cadetblue","burlywood3","chartreuse", 
 "cyan4","darkgoldenrod","darkorange1","firebrick","dodgerblue", "forestgreen"), las = 2)
+bp
+bp$stats[3,]
 
 ```
 After cleaning up the data and displaying it as a boxplot (above) we can better analyze the age and year 
 variables. While there is not a significant difference between the second and third quartiles between 1999 
 and 2012, it is clear the median age for runners in 2012 is lower than 1999. Also, a quick look at the 
-boxplots shows the median age value gradually decreasing over time, with 2011 as the only exception. The 
-data, as shown in the boxplot, does not have any significant outliers which leads to the conclusion the data 
+boxplots shows the median age value gradually decreasing over time, with 2011 as the only exception. A closer look at the boxplot statistics shows the median age of runners in 1999 was 40, while the median age of runner in 2012 was 36. Another interesting metric is the number of observations also increased each year from 3189 in 1999 to 7191 in 2012. The data, as shown in the boxplot, does not have any significant outliers which leads to the conclusion the data 
 is reliable and shows a gradual decline in the age of runners over time.
 
 ##Discussion and Future Works

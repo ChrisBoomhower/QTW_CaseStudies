@@ -209,7 +209,7 @@ After cleaning up the data and displaying it as a boxplot (below) we can better 
 # bp
 # bp$stats[3,]
 
-bp.p <- ggplot(cbMensPlot, aes(x=year, y=age, fill=year)) + geom_boxplot() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+bp.p <- ggplot(cbMensPlot, aes(x=year, y=age, fill=year)) + geom_boxplot() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_continuous(breaks = pretty(cbMensPlot$age, n = 10))+
     stat_summary(fun.y=mean, geom="point", shape=5, size=4)
 bp.p <- ggplotly(bp.p)
 bp.p

@@ -121,7 +121,9 @@ age.d
 ```
 
 ####Quantile-Quantile Plots
-Next in our analysis, we are interested to further discuss the normality of age distributions across the many years of the race.
+Next in our analysis, we are interested to further build our case on normality of age distributions across the many years of the race. To do this, we decide to produce a Quantile-Quantile Plot (QQPlot) to assess our data's quantiles against a theoretical normal distribution quantile. If our data poses as perfectly normal, we would see a straight line. The more our scatter varies from the ideal line, the further from normality is the distribution.
+
+In efforts to create an interactive plotly visualization for these QQPlots as was done for density curves, the rendering was overbearing in terms of performance. Due to these issues, the stacked (static) ggplot visual is provided, however very difficult to gleam insights from. It is apparent that several of these years have normality problems, however very difficult to understand which years the plot references. 
 ```{r}
 # calculate the normal theoretical quantiles per group
 cbMensPlotQQ <- ddply(.data = cbMensPlot, .variables = .(year),
@@ -140,6 +142,7 @@ age.qq = ggplot(data = cbMensPlotQQ, aes(x = xq, y = age, color = year)) +
 age.qq
 ```
 
+To mitigate these issues, we build ggplot rendering of each year individually below in order to assess individually in comparison to the others. Although none of these plots provide us with a "perfect" line representing normality, we can assert that over time the distributions for age become less normal. Looking at the same years {1999,2004, 2008, 2012} as was done previously, we see very strong normality between ~30-60 years of age in the 1999 race. Moving towards 2004, we begin to see the scatter dip below the normality line, and a larger variation under 30 than was seen before. In 2008, we once again see the scatter dropping below the normality line, and increasing variance in both ages under 30 and those above 50 years old. Finally, in 2012, we see variation amongst the majority of the scatter and the normality line. These results help to further support those findings provided from density curves, in that normality in age distributions has began to shift. In recent years, we begin to have a skewed distribution, likely caused by the increased participation of the younger individuals. 
 ```{r fig.width=12, fig.asp=1.5}
 
 plot.list <- list()

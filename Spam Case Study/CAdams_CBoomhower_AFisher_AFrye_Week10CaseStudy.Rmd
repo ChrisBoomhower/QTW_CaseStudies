@@ -8,8 +8,7 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 ####Cory Adams, Chris Boomhower, Alexandra Fisher, Alex Frye
 ####MSDS 7333, November 11, 2017
 
-***NOTE: We are Answering Q.19 from the Data Science in R textbook (Pg. 168): "Consider the other parameters that can be used to control the recursive partitioning process. Read the documentation for them in the rpart.control() documentation. Also, carry out an Internet search for more information on how to tweak the rpart() tuning parameters. Experiment with values for these parameters. Do the trees that result make sense with your understanding of how the parameters are used? Can you improve the
-prediction using them?"***
+***NOTE: We are Answering Q.19 from the Data Science in R textbook (Pg. 168): "Consider the other parameters that can be used to control the recursive partitioning process. Read the documentation for them in the rpart.control() documentation. Also, carry out an Internet search for more information on how to tweak the rpart() tuning parameters. Experiment with values for these parameters. Do the trees that result make sense with your understanding of how the parameters are used? Can you improve the prediction using them?"***
 
 ## Abstract
 
@@ -32,6 +31,25 @@ The steps used for this analysis were: 1)
 
 ```{r include=FALSE, cache=TRUE}
 source('DataExtractAndClean.R', echo = FALSE)
+```
+
+```{r echo=FALSE, message=FALSE, warning = FALSE}
+####Load Libraries
+library(ggplot2)
+library(plotly)
+library(plyr)
+library(grid)
+library(gridExtra)
+library(formattable)
+library(spam)
+```
+
+### Control for Rpart Fits - pg. 22 https://cran.r-project.org/web/packages/rpart/rpart.pdf
+
+```{r}
+rpart.control(minsplit = 20, minbucket = round(minsplit/3), cp = 0.01,
+                  maxcompete = 4, maxsurrogate = 5, usesurrogate = 2, xval = 10,
+                  surrogatestyle = 0, maxdepth = 30, ...)
 ```
 
 

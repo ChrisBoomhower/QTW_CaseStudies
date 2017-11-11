@@ -42,14 +42,61 @@ library(grid)
 library(gridExtra)
 library(formattable)
 library(spam)
+library(RColorBrewer)
 ```
 
 ### Control for Rpart Fits - pg. 22 https://cran.r-project.org/web/packages/rpart/rpart.pdf
 
+Will adjust following parameters:
+* cost (rpart)
+* cp (control)
+* minsplit (control) 2:1 with minbucket
+* minbucket (control) 1:2 with minsplit
+* maxdepth (control)
+
+Below code copied from DataExtractAndClean.R but needs modified to work with above parameters.
+
 ```{r}
-rpart.control(minsplit = 20, minbucket = round(minsplit/3), cp = 0.01,
-                  maxcompete = 4, maxsurrogate = 5, usesurrogate = 2, xval = 10,
-                  surrogatestyle = 0, maxdepth = 30, ...)
+complexityVals = c(seq(0.00001, 0.0001, length=19),
+                   seq(0.0001, 0.001, length=19), 
+                   seq(0.001, 0.005, length=9),
+                   seq(0.005, 0.01, length=9))
+
+fits = lapply(complexityVals, function(x) {
+  rpartObj = rpart(isSpam ~ ., data = trainDF,
+                   method="class", 
+                   control = rpart.control(cp=x) )
+  
+  predict(rpartObj, 
+          newdata = testDF[ , names(testDF) != "isSpam"],
+          type = "class")
+})
+
+spam = testDF$isSpam == "T"
+numSpam = sum(spam)
+numHam = sum(!spam)
+errs = sapply(fits, function(preds) {
+  typeI = sum(preds[ !spam ] == "T") / numHam
+  typeII = sum(preds[ spam ] == "F") / numSpam
+  c(typeI = typeI, typeII = typeII)
+})
+
+cols = brewer.pal(9, "Set1")[c(3, 4, 5)]
+plot(errs[1,] ~ complexityVals, type="l", col=cols[2], 
+     lwd = 2, ylim = c(0,0.2), xlim = c(0,0.005), 
+     ylab="Error", xlab="complexity parameter values")
+points(errs[2,] ~ complexityVals, type="l", col=cols[1], lwd = 2)
+
+text(x =c(0.003, 0.0035), y = c(0.12, 0.05), 
+     labels=c("Type II Error", "Type I Error"))
+
+minI = which(errs[1,] == min(errs[1,]))[1]
+abline(v = complexityVals[minI], col ="grey", lty =3, lwd=2)
+
+text(0.0007, errs[1, minI]+0.01, 
+     formatC(errs[1, minI], digits = 2))
+text(0.0007, errs[2, minI]+0.01, 
+     formatC(errs[2, minI], digits = 3))
 ```
 
 

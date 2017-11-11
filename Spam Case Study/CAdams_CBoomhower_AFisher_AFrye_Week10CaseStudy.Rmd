@@ -1,0 +1,44 @@
+---
+title: "Using Statistics to Identify Spam - Case Study Unit 10"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+####Cory Adams, Chris Boomhower, Alexandra Fisher, Alex Frye
+####MSDS 7333, November 11, 2017
+
+***NOTE: We are Answering Q.19 from the Data Science in R textbook (Pg. 168): "Consider the other parameters that can be used to control the recursive partitioning process. Read the documentation for them in the rpart.control() documentation. Also, carry out an Internet search for more information on how to tweak the rpart() tuning parameters. Experiment with values for these parameters. Do the trees that result make sense with your understanding of how the parameters are used? Can you improve the
+prediction using them?"***
+
+## Abstract
+
+
+## Introduction
+
+
+## Background
+
+
+## Methods
+The steps used for this analysis were: 1)
+
+*Note that code used includes modified versions of R code function examples found in Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving, Chapter 2, pages 22-XX , and Chapter 4, pages XXX-XXX [1].*
+
+
+## Results
+
+### Data Acquisition
+
+```{r include=FALSE, cache=TRUE}
+source('DataExtractAndClean.R', echo = FALSE)
+```
+
+
+
+
+## Discussion and Future Works 
+
+
+## References
+[1] D. Lang and D. Nolan, Data Science in R: A Case Studies Approach to Computation Reasoning and Problem Solving. New York, New York: CRC Press. 

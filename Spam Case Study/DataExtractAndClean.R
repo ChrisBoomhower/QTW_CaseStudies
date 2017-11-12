@@ -4,8 +4,12 @@
 this.dir <- dirname(parent.frame(2)$ofile)
 setwd(this.dir)
 
-spamPath = system.file(package = "RSpamData")
-#spamPath = "/Users/nolan/RPackages/RSpamData"spamPath = "."
+#spamPath = system.file(package = "RSpamData")
+
+spamPath = paste0(this.dir,"/RSpamData")
+
+#spamPath = "D:/Documents/School/SMU/2017 Fall/MSDS 7333 - Quantifying the World/QTW_CaseStudies/Spam Case Study/RSpamData"
+
 list.dirs(spamPath, full.names = FALSE)
 
 list.files(path = paste(spamPath, "messages", 

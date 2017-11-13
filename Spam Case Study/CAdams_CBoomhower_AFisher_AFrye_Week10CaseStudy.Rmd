@@ -29,7 +29,7 @@ The steps used for this analysis were: 1)
 
 ### Data Acquisition
 
-```{r include=FALSE, cache=TRUE}
+```{r include=FALSE, cache=TRUE, echo = FALSE, warning=FALSE}
 source('DataExtractAndClean.R', echo = FALSE)
 ```
 
@@ -44,51 +44,69 @@ library(formattable)
 library(spam)
 library(RColorBrewer)
 library(rpart)
+library(dplyr)
+library(corrplot)
+library(PerformanceAnalytics)
 ```
 
 
 ### Control for Rpart Fits - pg. 22 https://cran.r-project.org/web/packages/rpart/rpart.pdf
 
 Will adjust following parameters:
-* cost (rpart)
 * cp (control)
 * minsplit (control) 2:1 with minbucket
 * minbucket (control) 1:2 with minsplit
 * maxdepth (control)
 
-Below code copied from DataExtractAndClean.R but needs modified to work with above parameters.
+Below code copied from DataExtractAndClean.R but needs modified to work with above parameters. 
+
+
+Total parameter combinations generated: ````r paramCombos```` <br>
+Parameter Combinations Sampled to: ````r paramCombos/5````
 
 ```{r}
-cost<-data.frame(cost=c(0.00001, 0.0001, 0.001, 0.01, 0.1, 1.0, 5.0))
+#cost<-data.frame(cost=c(0.00001, 0.0001, 0.001, 0.01, 0.1, 1.0, 5.0))
 
 cp<-data.frame(cp=c(0.00001, 0.0001, 0.005, 0.01))
 
-bucketSplit<-data.frame(minsplit =round(seq(2, 200, length=30),0)+ (round(seq(2, 200, length=30),0)%%2))
+bucketSplit<-data.frame(minsplit =round(seq(2, 100, length=30),0)+ (round(seq(2, 100, length=30),0)%%2))
 bucketSplit$minbucket <- bucketSplit$minsplit/2
 
-maxDepth<-data.frame(maxDepth = round(seq(5, 200, length=20),0))
+maxDepth<-data.frame(maxDepth = round(seq(3, 30, length=10),0))
 
-parameters<-merge(merge(merge(cost,cp,all=TRUE),bucketSplit,all=TRUE),maxDepth,all=TRUE)
+#parameters<-merge(merge(merge(cost,cp,all=TRUE),bucketSplit,all=TRUE),maxDepth,all=TRUE)
+parameters<-merge(merge(cp,bucketSplit,all=TRUE),maxDepth,all=TRUE)
 
+paramCombos <- nrow(parameters)
 
-parameters
+set.seed(paramCombos)
+
+paramSampleddf<- sample_n(parameters, (paramCombos/5))
+
+formattable(head(paramSampleddf,10))
+
+paramSampled<-setNames(split(paramSampleddf, seq(nrow(paramSampleddf))), rownames(paramSampleddf))
+
 ```
 
 ```{r}
-complexityVals = c(seq(0.00001, 0.0001, length=19),
-                   seq(0.0001, 0.001, length=19), 
-                   seq(0.001, 0.005, length=9),
-                   seq(0.005, 0.01, length=9))
 
-fits = lapply(complexityVals, function(x) {
+
+fits <- lapply(paramSampled, function(x) {
   rpartObj = rpart(isSpam ~ ., data = trainDF,
                    method="class", 
-                   control = rpart.control(cp=x) )
+                   #cost = x$cost,
+                   control = rpart.control(cp = x$cp, minsplit = x$minsplit, minbucket = x$minbucket, maxdepth = x$maxDepth) )
   
   predict(rpartObj, 
           newdata = testDF[ , names(testDF) != "isSpam"],
           type = "class")
-})
+  })
+
+
+```
+
+```{r warning=FALSE}
 
 spam = testDF$isSpam == "T"
 numSpam = sum(spam)
@@ -99,22 +117,25 @@ errs = sapply(fits, function(preds) {
   c(typeI = typeI, typeII = typeII)
 })
 
-cols = brewer.pal(9, "Set1")[c(3, 4, 5)]
-plot(errs[1,] ~ complexityVals, type="l", col=cols[2], 
-     lwd = 2, ylim = c(0,0.2), xlim = c(0,0.005), 
-     ylab="Error", xlab="complexity parameter values")
-points(errs[2,] ~ complexityVals, type="l", col=cols[1], lwd = 2)
 
-text(x =c(0.003, 0.0035), y = c(0.12, 0.05), 
-     labels=c("Type II Error", "Type I Error"))
+accuracy = lapply(fits,function(x){
+  xtab <- table(unlist(x), spam)
+  #print(xtab)
+  sum(diag(xtab))/sum(xtab)
 
-minI = which(errs[1,] == min(errs[1,]))[1]
-abline(v = complexityVals[minI], col ="grey", lty =3, lwd=2)
+  })
 
-text(0.0007, errs[1, minI]+0.01, 
-     formatC(errs[1, minI], digits = 2))
-text(0.0007, errs[2, minI]+0.01, 
-     formatC(errs[2, minI], digits = 3))
+paramSampleddf$Accuracies <- unlist(accuracy)
+
+formattable(head(paramSampleddf[order(-paramSampleddf$Accuracies),],20))
+
+res <- cor(paramSampleddf)
+res
+corrplot(res, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45)
+
+chart.Correlation(paramSampleddf, histogram=TRUE, pch=19)
+
 ```
 
 

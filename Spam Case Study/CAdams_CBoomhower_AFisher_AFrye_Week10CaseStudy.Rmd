@@ -43,7 +43,9 @@ library(gridExtra)
 library(formattable)
 library(spam)
 library(RColorBrewer)
+library(rpart)
 ```
+
 
 ### Control for Rpart Fits - pg. 22 https://cran.r-project.org/web/packages/rpart/rpart.pdf
 
@@ -55,6 +57,22 @@ Will adjust following parameters:
 * maxdepth (control)
 
 Below code copied from DataExtractAndClean.R but needs modified to work with above parameters.
+
+```{r}
+cost<-data.frame(cost=c(0.00001, 0.0001, 0.001, 0.01, 0.1, 1.0, 5.0))
+
+cp<-data.frame(cp=c(0.00001, 0.0001, 0.005, 0.01))
+
+bucketSplit<-data.frame(minsplit =round(seq(2, 200, length=30),0)+ (round(seq(2, 200, length=30),0)%%2))
+bucketSplit$minbucket <- bucketSplit$minsplit/2
+
+maxDepth<-data.frame(maxDepth = round(seq(5, 200, length=20),0))
+
+parameters<-merge(merge(merge(cost,cp,all=TRUE),bucketSplit,all=TRUE),maxDepth,all=TRUE)
+
+
+parameters
+```
 
 ```{r}
 complexityVals = c(seq(0.00001, 0.0001, length=19),

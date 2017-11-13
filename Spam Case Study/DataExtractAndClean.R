@@ -320,14 +320,14 @@ newMsg = newMsg[!is.na(match(newMsg, colnames(trainTable)))]
 
 present = colnames(trainTable) %in% newMsg
 
-sum(trainTable["presentLogOdds", present]) + 
-  sum(trainTable["absentLogOdds", !present])
+#sum(trainTable["presentLogOdds", present]) + 
+#  sum(trainTable["absentLogOdds", !present])
 
 newMsg = testMsgWords[[ which(!testIsSpam)[1] ]]
 newMsg = newMsg[!is.na(match(newMsg, colnames(trainTable)))]
 present = (colnames(trainTable) %in% newMsg)
-sum(trainTable["presentLogOdds", present]) + 
-  sum(trainTable["absentLogOdds", !present])
+#sum(trainTable["presentLogOdds", present]) + 
+#  sum(trainTable["absentLogOdds", !present])
 
 computeMsgLLR = function(words, freqTable) 
 {
@@ -337,20 +337,20 @@ computeMsgLLR = function(words, freqTable)
   # Find which words are present
   present = colnames(freqTable) %in% words
   
-  sum(freqTable["presentLogOdds", present]) +
-    sum(freqTable["absentLogOdds", !present])
+  #sum(freqTable["presentLogOdds", present]) +
+  #  sum(freqTable["absentLogOdds", !present])
 }
 
 testLLR = sapply(testMsgWords, computeMsgLLR, trainTable)
 
-tapply(testLLR, testIsSpam, summary)
+#tapply(testLLR, testIsSpam, summary)
 
-pdf("SP_Boxplot.pdf", width = 6, height = 6)
-spamLab = c("ham", "spam")[1 + testIsSpam]
-boxplot(testLLR ~ spamLab, ylab = "Log Likelihood Ratio",
-        #  main = "Log Likelihood Ratio for Randomly Chosen Test Messages",
-        ylim=c(-500, 500))
-dev.off()
+#pdf("SP_Boxplot.pdf", width = 6, height = 6)
+# spamLab = c("ham", "spam")[1 + testIsSpam]
+# boxplot(testLLR ~ spamLab, ylab = "Log Likelihood Ratio",
+#         #  main = "Log Likelihood Ratio for Randomly Chosen Test Messages",
+#         ylim=c(-500, 500))
+#dev.off()
 
 typeIErrorRate = 
   function(tau, llrVals, spam)
@@ -375,71 +375,71 @@ typeIErrorRates =
     list(error = (N:1)/N, values = llrVals[idx])
   }
 
-typeIIErrorRates = function(llrVals, isSpam) {
-  
-  o = order(llrVals)
-  llrVals =  llrVals[o]
-  isSpam = isSpam[o]
-  
-  
-  idx = which(isSpam)
-  N = length(idx)
-  list(error = (1:(N))/N, values = llrVals[idx])
-}  
+# typeIIErrorRates = function(llrVals, isSpam) {
+#   
+#   o = order(llrVals)
+#   llrVals =  llrVals[o]
+#   isSpam = isSpam[o]
+#   
+#   
+#   idx = which(isSpam)
+#   N = length(idx)
+#   list(error = (1:(N))/N, values = llrVals[idx])
+# }  
+# 
+# xI = typeIErrorRates(testLLR, testIsSpam)
+# xII = typeIIErrorRates(testLLR, testIsSpam)
+# tau01 = round(min(xI$values[xI$error <= 0.01]))
+# t2 = max(xII$error[ xII$values < tau01 ])
 
-xI = typeIErrorRates(testLLR, testIsSpam)
-xII = typeIIErrorRates(testLLR, testIsSpam)
-tau01 = round(min(xI$values[xI$error <= 0.01]))
-t2 = max(xII$error[ xII$values < tau01 ])
-
-pdf("LinePlotTypeI+IIErrors.pdf", width = 8, height = 6)
+# pdf("LinePlotTypeI+IIErrors.pdf", width = 8, height = 6)
 
 library(RColorBrewer)
-cols = brewer.pal(9, "Set1")[c(3, 4, 5)]
-plot(xII$error ~ xII$values,  type = "l", col = cols[1], lwd = 3,
-     xlim = c(-300, 250), ylim = c(0, 1),
-     xlab = "Log Likelihood Ratio Values", ylab="Error Rate")
-points(xI$error ~ xI$values, type = "l", col = cols[2], lwd = 3)
-legend(x = 50, y = 0.4, fill = c(cols[2], cols[1]),
-       legend = c("Classify Ham as Spam", 
-                  "Classify Spam as Ham"), cex = 0.8,
-       bty = "n")
-abline(h=0.01, col ="grey", lwd = 3, lty = 2)
-text(-250, 0.05, pos = 4, "Type I Error = 0.01", col = cols[2])
-
-mtext(tau01, side = 1, line = 0.5, at = tau01, col = cols[3])
-segments(x0 = tau01, y0 = -.50, x1 = tau01, y1 = t2, 
-         lwd = 2, col = "grey")
-text(tau01 + 20, 0.05, pos = 4,
-     paste("Type II Error = ", round(t2, digits = 2)), 
-     col = cols[1])
-
-dev.off()
-
-k = 5
-numTrain = length(trainMsgWords)
-partK = sample(numTrain)
-tot = k * floor(numTrain/k)
-partK = matrix(partK[1:tot], ncol = k)
-
-testFoldOdds = NULL
-for (i in 1:k) {
-  foldIdx = partK[ , i]
-  trainTabFold = computeFreqs(trainMsgWords[-foldIdx], trainIsSpam[-foldIdx])
-  testFoldOdds = c(testFoldOdds, 
-                   sapply(trainMsgWords[ foldIdx ], computeMsgLLR, trainTabFold))
-}
-
-testFoldSpam = NULL
-for (i in 1:k) {
-  foldIdx = partK[ , i]
-  testFoldSpam = c(testFoldSpam, trainIsSpam[foldIdx])
-}
-
-xFoldI = typeIErrorRates(testFoldOdds, testFoldSpam)
-xFoldII = typeIIErrorRates(testFoldOdds, testFoldSpam)
-tauFoldI = round(min(xFoldI$values[xFoldI$error <= 0.01]))
-tFold2 = xFoldII$error[ xFoldII$values < tauFoldI ]
+# cols = brewer.pal(9, "Set1")[c(3, 4, 5)]
+# plot(xII$error ~ xII$values,  type = "l", col = cols[1], lwd = 3,
+#      xlim = c(-300, 250), ylim = c(0, 1),
+#      xlab = "Log Likelihood Ratio Values", ylab="Error Rate")
+# points(xI$error ~ xI$values, type = "l", col = cols[2], lwd = 3)
+# legend(x = 50, y = 0.4, fill = c(cols[2], cols[1]),
+#        legend = c("Classify Ham as Spam", 
+#                   "Classify Spam as Ham"), cex = 0.8,
+#        bty = "n")
+# abline(h=0.01, col ="grey", lwd = 3, lty = 2)
+# text(-250, 0.05, pos = 4, "Type I Error = 0.01", col = cols[2])
+# 
+# mtext(tau01, side = 1, line = 0.5, at = tau01, col = cols[3])
+# segments(x0 = tau01, y0 = -.50, x1 = tau01, y1 = t2, 
+#          lwd = 2, col = "grey")
+# text(tau01 + 20, 0.05, pos = 4,
+#      paste("Type II Error = ", round(t2, digits = 2)), 
+#      col = cols[1])
+# 
+# dev.off()
+# 
+# k = 5
+# numTrain = length(trainMsgWords)
+# partK = sample(numTrain)
+# tot = k * floor(numTrain/k)
+# partK = matrix(partK[1:tot], ncol = k)
+# 
+# testFoldOdds = NULL
+# for (i in 1:k) {
+#   foldIdx = partK[ , i]
+#   trainTabFold = computeFreqs(trainMsgWords[-foldIdx], trainIsSpam[-foldIdx])
+#   testFoldOdds = c(testFoldOdds, 
+#                    sapply(trainMsgWords[ foldIdx ], computeMsgLLR, trainTabFold))
+# }
+# 
+# testFoldSpam = NULL
+# for (i in 1:k) {
+#   foldIdx = partK[ , i]
+#   testFoldSpam = c(testFoldSpam, trainIsSpam[foldIdx])
+# }
+# 
+# xFoldI = typeIErrorRates(testFoldOdds, testFoldSpam)
+# xFoldII = typeIIErrorRates(testFoldOdds, testFoldSpam)
+# tauFoldI = round(min(xFoldI$values[xFoldI$error <= 0.01]))
+# tFold2 = xFoldII$error[ xFoldII$values < tauFoldI ]
 
 smallNums = rep((1/2)^40, 2000000)
 largeNum = 10000
@@ -480,13 +480,14 @@ processHeader = function(header)
 {
   # modify the first line to create a key:value pair
   header[1] = sub("^From", "Top-From:", header[1])
-  
+  closeAllConnections()
   headerMat = read.dcf(textConnection(header), all = TRUE)
   headerVec = unlist(headerMat)
   
   dupKeys = sapply(headerMat, function(x) length(unlist(x)))
   names(headerVec) = rep(colnames(headerMat), dupKeys)
   
+  closeAllConnections()
   return(headerVec)
 }
 
@@ -687,7 +688,7 @@ emailStruct = unlist(emailStruct, recursive = FALSE)
 
 sampleStruct = emailStruct[ indx ]
 
-save(emailStruct, file="emailXX.rda")
+#save(emailStruct, file="emailXX.rda")
 
 header = sampleStruct[[1]]$header
 subject = header["Subject"]
@@ -1109,7 +1110,7 @@ emailDF = createDerivedDF(emailStruct)
 dim(emailDF)
 #save(emailDF, file = "spamAssassinDerivedDF.rda")
 
-load("Data/spamAssassinDerivedDF.rda")
+#load("Data/spamAssassinDerivedDF.rda")
 dim(emailDF)
 
 perCaps2 =
@@ -1146,23 +1147,23 @@ x.at = c(1,10,100,1000,10000,100000)
 y.at = c(1, 5, 10, 50, 100, 500, 5000)
 nL = 1 + emailDF$numLines
 nC = 1 + emailDF$bodyCharCt
-pdf("ScatterPlotNumLinesNumChars.pdf", width = 6, height = 4.5)
+# pdf("ScatterPlotNumLinesNumChars.pdf", width = 6, height = 4.5)
 plot(nL ~ nC, log = "xy", pch=".", xlim=c(1,100000), axes = FALSE,
      xlab = "Number of Characters", ylab = "Number of Lines")
 box() 
 axis(1, at = x.at, labels = formatC(x.at, digits = 0, format="d"))
 axis(2, at = y.at, labels = formatC(y.at, digits = 0, format="d")) 
 abline(a=0, b=1, col="red", lwd = 2)
-dev.off()
+# dev.off()
 
-pdf("SPAM_boxplotsPercentCaps.pdf", width = 5, height = 5)
+# pdf("SPAM_boxplotsPercentCaps.pdf", width = 5, height = 5)
 
 percent = emailDF$perCaps
 isSpamLabs = factor(emailDF$isSpam, labels = c("ham", "spam"))
 boxplot(log(1 + percent) ~ isSpamLabs,
         ylab = "Percent Capitals (log)")
 
-dev.off()
+# dev.off()
 
 logPerCapsSpam = log(1 + emailDF$perCaps[ emailDF$isSpam ])
 logPerCapsHam = log(1 + emailDF$perCaps[ !emailDF$isSpam ])
@@ -1172,7 +1173,7 @@ qqplot(logPerCapsSpam, logPerCapsHam,
        main = "Percentage of Capital Letters (log scale)",
        pch = 19, cex = 0.3)
 
-pdf("SPAM_scatterplotPercentCapsTotChars.pdf", width = 8, height = 6)
+# pdf("SPAM_scatterplotPercentCapsTotChars.pdf", width = 8, height = 6)
 
 colI = c("#4DAF4A80", "#984EA380")
 logBodyCharCt = log(1 + emailDF$bodyCharCt)
@@ -1182,11 +1183,11 @@ plot(logPerCaps ~ logBodyCharCt, xlab = "Total Characters (log)",
      col = colI[1 + emailDF$isSpam],
      xlim = c(2,12), pch = 19, cex = 0.5)
 
-dev.off()
+# dev.off()
 
 table(emailDF$numAtt, isSpamLabs)
 
-pdf("SPAM_mosaicPlots.pdf", width = 8, height = 4)
+# pdf("SPAM_mosaicPlots.pdf", width = 8, height = 4)
 
 oldPar = par(mfrow = c(1, 2), mar = c(1,1,1,1))
 
@@ -1201,7 +1202,7 @@ mosaicplot(table(isSpamLabs, fromNE), color = colM,
 
 par(oldPar)
 
-dev.off()
+# dev.off()
 
 library(rpart)
 
@@ -1235,11 +1236,10 @@ rpartFit = rpart(isSpam ~ ., data = trainDF, method = "class")
 library(rpart.plot)
 prp(rpartFit, extra = 1)
 
-library(rpart.plot)
-pdf("SPAM_rpartTree.pdf", width = 7, height = 7)
+# pdf("SPAM_rpartTree.pdf", width = 7, height = 7)
 
 prp(rpartFit, extra = 1)
-dev.off()
+# dev.off()
 
 predictions = predict(rpartFit, 
                       newdata = testDF[, names(testDF) != "isSpam"],
@@ -1277,7 +1277,7 @@ errs = sapply(fits, function(preds) {
   c(typeI = typeI, typeII = typeII)
 })
 
-pdf("SPAM_rpartTypeIandII.pdf", width = 8, height = 7)
+# pdf("SPAM_rpartTypeIandII.pdf", width = 8, height = 7)
 library(RColorBrewer)
 cols = brewer.pal(9, "Set1")[c(3, 4, 5)]
 plot(errs[1,] ~ complexityVals, type="l", col=cols[2], 
@@ -1296,4 +1296,4 @@ text(0.0007, errs[1, minI]+0.01,
 text(0.0007, errs[2, minI]+0.01, 
      formatC(errs[2, minI], digits = 3))
 
-dev.off()
+# dev.off()

@@ -102,6 +102,7 @@ formattable(head(paramSampleddf,10))
 ```
 
 ### rpart.control Parameter Analysis and Prediction
+Having now defined our 240 unique combinations of cp, minsplit, minbucket, and maxDepth, we proceed with rendering our various partitioning trees to compare performance. Below, we segment each configuration into a list of 240 unique parameter combinations and then use lapply() to apply the rpart() function using each configuration. 
 ```{r}
 paramSampled<-setNames(split(paramSampleddf, seq(nrow(paramSampleddf))), rownames(paramSampleddf))
 
@@ -118,8 +119,11 @@ fits <- lapply(paramSampled, function(x) {
 
 ```
 
-```{r warning=FALSE}
+Upon implementing the above code chunk, a new list of prediction results (length 240) for the 3116 test messages is rendered. This means we now have 240 sets of prediction results for all 3116 test messages. We use this list to compute accuracies and compare overall classification performance of each input parameter configuration set.
 
+Prediction accuracies for each parameter combination are calculated next. This is done by processing our list of results and creating a new accuracy column in our previous parameter combination dataframe. The top 10 most accurate combinations are presented in the table that follows.
+
+```{r warning=FALSE}
 spam = testDF$isSpam == "T"
 
 accuracy = lapply(fits,function(x){
@@ -133,13 +137,20 @@ paramSampleddf$Accuracies <- unlist(accuracy)
 
 maxAccuracy <- max(paramSampleddf$Accuracies)
 formattable(head(paramSampleddf[order(-paramSampleddf$Accuracies),],10))
+```
 
+While this table is informative, the fact that we sampled the 1200 possible parameter combinations down to 240 makes it difficult to interpret with much granularity. For this reason, we take a novel approach to parameter assessment next. We've rendered the following scatterplot and correlation matrix comprised of rpart()/rpart.control() parameters and final accuracies to better assess performance. By visually treating accuracy as we would a response variable, and cp, minsplit, minbucket, and maxDepth as we would independent variables, we render the following scatterplot and correlation matrix.
+
+```{r warning=FALSE}
 res <- cor(paramSampleddf)
 
 chart.Correlation(paramSampleddf, histogram=TRUE, pch=19)
 
 ```
 
+Each dot represents.....will continue Tuesday
+
+Notes for interpretation:
 In the above plot:
 
 * The distribution of each variable is shown on the diagonal.

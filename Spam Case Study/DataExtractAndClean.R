@@ -162,7 +162,7 @@ msg[ c(1, 3, 26, 27) ]
 cleanMsg = tolower(gsub("[[:punct:]0-9[:blank:]]+", " ", msg))
 cleanMsg[ c(1, 3, 26, 27) ]
 
-library(tm)
+
 stopWords = stopwords()
 cleanSW = tolower(gsub("[[:punct:]0-9[:blank:]]+", " ", stopWords))
 SWords = unlist(strsplit(cleanSW, "[[:blank:]]+"))
@@ -394,7 +394,7 @@ typeIErrorRates =
 
 # pdf("LinePlotTypeI+IIErrors.pdf", width = 8, height = 6)
 
-library(RColorBrewer)
+
 # cols = brewer.pal(9, "Set1")[c(3, 4, 5)]
 # plot(xII$error ~ xII$values,  type = "l", col = cols[1], lwd = 3,
 #      xlim = c(-300, 250), ylim = c(0, 1),
@@ -1204,7 +1204,7 @@ par(oldPar)
 
 # dev.off()
 
-library(rpart)
+
 
 setupRpart = function(data) {
   logicalVars = which(sapply(data, is.logical))
@@ -1233,7 +1233,7 @@ trainDF =
 
 rpartFit = rpart(isSpam ~ ., data = trainDF, method = "class")
 
-library(rpart.plot)
+
 prp(rpartFit, extra = 1)
 
 # pdf("SPAM_rpartTree.pdf", width = 7, height = 7)
@@ -1278,7 +1278,7 @@ errs = sapply(fits, function(preds) {
 })
 
 # pdf("SPAM_rpartTypeIandII.pdf", width = 8, height = 7)
-library(RColorBrewer)
+
 cols = brewer.pal(9, "Set1")[c(3, 4, 5)]
 plot(errs[1,] ~ complexityVals, type="l", col=cols[2], 
      lwd = 2, ylim = c(0,0.2), xlim = c(0,0.005), 

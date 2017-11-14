@@ -10,6 +10,16 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 
 ***NOTE: We are Answering Q.19 from the Data Science in R textbook (Pg. 168): "Consider the other parameters that can be used to control the recursive partitioning process. Read the documentation for them in the rpart.control() documentation. Also, carry out an Internet search for more information on how to tweak the rpart() tuning parameters. Experiment with values for these parameters. Do the trees that result make sense with your understanding of how the parameters are used? Can you improve the prediction using them?"***
 
+
+#Assignments (Delete This Before Submission)
+
+* Fisher - Abstract, Intro, Background, Discussion and Future Work
+* Cory - Load and Clean (disclaimer), rpart.control Research
+* Chris - rpart.control Analysis and Prediction, Comparison to default
+* Frye - coding...done
+
+
+
 ## Abstract
 
 
@@ -20,7 +30,7 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 
 
 ## Methods
-The steps used for this analysis were: 1)
+The steps used for this analysis were: 1) Load and Clean the data; 2) rpart.control Parameter Research; 3) rpart.control Parameter Analysis and Prediction; 4) Comparison to Default Results.
 
 *Note that code used includes modified versions of R code function examples found in Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving, Chapter 2, pages 22-XX , and Chapter 4, pages XXX-XXX [1].*
 
@@ -28,11 +38,6 @@ The steps used for this analysis were: 1)
 ## Results
 
 ### Data Acquisition
-
-```{r include=FALSE, cache=TRUE, echo = FALSE, warning=FALSE}
-source('DataExtractAndClean.R', echo = FALSE)
-```
-
 ```{r echo=FALSE, message=FALSE, warning = FALSE}
 ####Load Libraries
 library(ggplot2)
@@ -47,16 +52,25 @@ library(rpart)
 library(dplyr)
 library(corrplot)
 library(PerformanceAnalytics)
+library(rpart.plot)
+library(rpart)
+library(RColorBrewer)
+library(tm)
+```
+
+```{r include=FALSE, cache=TRUE, echo = FALSE, warning=FALSE}
+source('DataExtractAndClean.R', echo = FALSE)
 ```
 
 
-### Control for Rpart Fits - pg. 22 https://cran.r-project.org/web/packages/rpart/rpart.pdf
+### rpart.control Parameter Research
 
 Will adjust following parameters:
-* cp (control)
-* minsplit (control) 2:1 with minbucket
-* minbucket (control) 1:2 with minsplit
-* maxdepth (control)
+
+  * cp (control)
+  * minsplit (control) 2:1 with minbucket
+  * minbucket (control) 1:2 with minsplit
+  * maxdepth (control)
 
 Below code copied from DataExtractAndClean.R but needs modified to work with above parameters. 
 
@@ -85,12 +99,11 @@ paramSampleddf<- sample_n(parameters, (paramCombos/5))
 
 formattable(head(paramSampleddf,10))
 
-paramSampled<-setNames(split(paramSampleddf, seq(nrow(paramSampleddf))), rownames(paramSampleddf))
-
 ```
 
+### rpart.control Parameter Analysis and Prediction
 ```{r}
-
+paramSampled<-setNames(split(paramSampleddf, seq(nrow(paramSampleddf))), rownames(paramSampleddf))
 
 fits <- lapply(paramSampled, function(x) {
   rpartObj = rpart(isSpam ~ ., data = trainDF,
@@ -103,20 +116,11 @@ fits <- lapply(paramSampled, function(x) {
           type = "class")
   })
 
-
 ```
 
 ```{r warning=FALSE}
 
 spam = testDF$isSpam == "T"
-numSpam = sum(spam)
-numHam = sum(!spam)
-errs = sapply(fits, function(preds) {
-  typeI = sum(preds[ !spam ] == "T") / numHam
-  typeII = sum(preds[ spam ] == "F") / numSpam
-  c(typeI = typeI, typeII = typeII)
-})
-
 
 accuracy = lapply(fits,function(x){
   xtab <- table(unlist(x), spam)
@@ -127,18 +131,41 @@ accuracy = lapply(fits,function(x){
 
 paramSampleddf$Accuracies <- unlist(accuracy)
 
-formattable(head(paramSampleddf[order(-paramSampleddf$Accuracies),],20))
+maxAccuracy <- max(paramSampleddf$Accuracies)
+formattable(head(paramSampleddf[order(-paramSampleddf$Accuracies),],10))
 
 res <- cor(paramSampleddf)
-res
-corrplot(res, type = "upper", order = "hclust", 
-         tl.col = "black", tl.srt = 45)
 
 chart.Correlation(paramSampleddf, histogram=TRUE, pch=19)
 
 ```
 
+In the above plot:
 
+* The distribution of each variable is shown on the diagonal.
+* On the bottom of the diagonal : the bivariate scatter plots with a fitted line are displayed
+* On the top of the diagonal : the value of the correlation plus the significance level as stars
+* Each significance level is associated to a symbol : p-values(0, 0.001, 0.01, 0.05, 0.1, 1) <=> symbols("***", "**", "*", ".", " ")
+
+
+### Comparison to Default Results
+
+````r (maxAccuracy-defaultAccuracy)*100````% increase in accuracy
+
+```{r}
+#code here to run defaults
+
+rpartObj = rpart(isSpam ~ ., data = trainDF, method="class")
+
+defaultResults <- predict(rpartObj, 
+        newdata = testDF[ , names(testDF) != "isSpam"],
+        type = "class")
+
+xtab <- table(unlist(defaultResults), spam)
+#print(xtab)
+defaultAccuracy<-sum(diag(xtab))/sum(xtab)
+#print(defaultAccuracy)
+```
 
 
 ## Discussion and Future Works 

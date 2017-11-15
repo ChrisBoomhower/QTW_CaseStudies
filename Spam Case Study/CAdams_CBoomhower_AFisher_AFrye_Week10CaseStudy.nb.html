@@ -180,39 +180,163 @@ $(document).ready(function () {
 <h4>MSDS 7333, November 11, 2017</h4>
 <p><strong><em>NOTE: We are Answering Q.19 from the Data Science in R textbook (Pg. 168): “Consider the other parameters that can be used to control the recursive partitioning process. Read the documentation for them in the rpart.control() documentation. Also, carry out an Internet search for more information on how to tweak the rpart() tuning parameters. Experiment with values for these parameters. Do the trees that result make sense with your understanding of how the parameters are used? Can you improve the prediction using them?”</em></strong></p>
 </div>
+<div id="assignments-delete-this-before-submission" class="section level1">
+<h1>Assignments (Delete This Before Submission)</h1>
+<ul>
+<li>Fisher - Abstract, Intro, Background, Discussion and Future Work</li>
+<li>Cory - Load and Clean (disclaimer), rpart.control Research</li>
+<li>Chris - rpart.control Analysis and Prediction, Comparison to default</li>
+<li>Frye - coding…done</li>
+</ul>
 <div id="abstract" class="section level2">
 <h2>Abstract</h2>
+<p>In this case study, over 9,000 email messages are examined in order to develop and test spam filters via classification trees and recursive partitioning. Spam filters are ubiquitous today among email providers and are designed to examine content for red flags as indicators of a wanted or unwanted message, respectively known as ham or spam. Spam data used comes from messages previously classified as either ham or spam by SpamAssassin (<a href="http://spamassassin.apache.org" class="uri">http://spamassassin.apache.org</a>) specifically for creating and testing these spam filters. R statistical language is leveraged for spam data cleanup and text processing through the use of decision trees. The decision tree approach uses message characteristics to derive sets of features for email classification, and to build a decision tree from derived features, a recursive partitioning method is applied.</p>
 </div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
+<p>This case study was undertaken in order to explore and shed light on automating classification procedures for filtering unwanted and potentially harmful email messages, referred to hereafter as spam. Spam filters have become ubiquitous among all email providers and are designed to closely examine content for red flags. After analyzing content for red flag characteristics, spam filters then determine if the message is either a wanted/desired message (ham) or an unwanted message (spam). These types of determinations are rooted in statistical analyses of many emails previously classified as either ham or spam.</p>
+<p>Spam data used comes from 9,000 messages previously classified by SpamAssassin (<a href="http://spamassassin.apache.org" class="uri">http://spamassassin.apache.org</a>) specifically for creating and testing these spam filters. First and foremost, the information contained in the messages must be organized and processed in order to correctly quantify for further analysis. R statistical language is leveraged to conduct text processing for this initial step and two approaches can be utilized—text mining or decision trees. The text mining approach simply tallies words and compares associated frequencies in ham versus spam, while the decision tree approach uses message characteristics to derive variables for email classification. For the purposes of this case study, only the decision tree approach is used.</p>
+<p>To read the 9,000 email messages into R, each file is read as its own message. Various parts are then identified within each message as one of the following: (1) the header (sender and subject information); (2) the message body; or (3) an attachment. However, prior to designing data extraction, we investigate email structures to detail and understand the general message format. Then the headers and message bodies can be processed for extraction. Examples of key information gathered include identifying excessive amounts of punctuation and capitalization in the subject line or character count and frequency in the body. The decision tree is then used to derive variables associated with certain characteristics to classify the messages.</p>
 </div>
 <div id="background" class="section level2">
 <h2>Background</h2>
+<p>To build a decision tree from derived features, a recursive partitioning method is applied.</p>
 </div>
 <div id="methods" class="section level2">
 <h2>Methods</h2>
-<p>The steps used for this analysis were: 1)</p>
-<p><em>Note that code used includes modified versions of R code function examples found in Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving, Chapter 2, pages 22-XX , and Chapter 4, pages XXX-XXX [1].</em></p>
+<p>The steps used for this analysis were: 1) Load and Clean the data; 2) rpart.control Parameter Research; 3) rpart.control Parameter Analysis and Prediction; 4) Comparison to Default Results.</p>
+<p><em>Note that code used includes modified versions of R code function examples found in Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving, Chapter 3, pages 107-164 [1].</em></p>
 </div>
 <div id="results" class="section level2">
 <h2>Results</h2>
 <div id="data-acquisition" class="section level3">
 <h3>Data Acquisition</h3>
 <!-- rnb-text-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-text-begin -->
 </div>
-<div id="control-for-rpart-fits---pg.-22-httpscran.r-project.orgwebpackagesrpartrpart.pdf" class="section level3">
-<h3>Control for Rpart Fits - pg. 22 <a href="https://cran.r-project.org/web/packages/rpart/rpart.pdf" class="uri">https://cran.r-project.org/web/packages/rpart/rpart.pdf</a></h3>
+<div id="rpart.control-parameter-research" class="section level3">
+<h3>rpart.control Parameter Research</h3>
+<p>Will adjust following parameters:</p>
+<ul>
+<li>cp (control)</li>
+<li>minsplit (control) 2:1 with minbucket</li>
+<li>minbucket (control) 1:2 with minsplit</li>
+<li>maxdepth (control)</li>
+</ul>
+<p>Below code copied from DataExtractAndClean.R but needs modified to work with above parameters.</p>
+<p>Total parameter combinations generated: <code>1200</code> <br> Parameter Combinations Sampled to: <code>240</code></p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucnBhcnQuY29udHJvbChtaW5zcGxpdCA9IDIwLCBtaW5idWNrZXQgPSByb3VuZChtaW5zcGxpdC8zKSwgY3AgPSAwLjAxLFxuICAgICAgICAgICAgICAgICAgbWF4Y29tcGV0ZSA9IDQsIG1heHN1cnJvZ2F0ZSA9IDUsIHVzZXN1cnJvZ2F0ZSA9IDIsIHh2YWwgPSAxMCxcbiAgICAgICAgICAgICAgICAgIHN1cnJvZ2F0ZXN0eWxlID0gMCwgbWF4ZGVwdGggPSAzMCwgLi4uKVxuYGBgIn0= -->
-<pre class="r"><code>rpart.control(minsplit = 20, minbucket = round(minsplit/3), cp = 0.01,
-                  maxcompete = 4, maxsurrogate = 5, usesurrogate = 2, xval = 10,
-                  surrogatestyle = 0, maxdepth = 30, ...)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2Nvc3Q8LWRhdGEuZnJhbWUoY29zdD1jKDAuMDAwMDEsIDAuMDAwMSwgMC4wMDEsIDAuMDEsIDAuMSwgMS4wLCA1LjApKVxuXG5jcDwtZGF0YS5mcmFtZShjcD1jKDAuMDAwMDEsIDAuMDAwMSwgMC4wMDUsIDAuMDEpKVxuXG5idWNrZXRTcGxpdDwtZGF0YS5mcmFtZShtaW5zcGxpdCA9cm91bmQoc2VxKDIsIDEwMCwgbGVuZ3RoPTMwKSwwKSsgKHJvdW5kKHNlcSgyLCAxMDAsIGxlbmd0aD0zMCksMCklJTIpKVxuYnVja2V0U3BsaXQkbWluYnVja2V0IDwtIGJ1Y2tldFNwbGl0JG1pbnNwbGl0LzJcblxubWF4RGVwdGg8LWRhdGEuZnJhbWUobWF4RGVwdGggPSByb3VuZChzZXEoMywgMzAsIGxlbmd0aD0xMCksMCkpXG5cbiNwYXJhbWV0ZXJzPC1tZXJnZShtZXJnZShtZXJnZShjb3N0LGNwLGFsbD1UUlVFKSxidWNrZXRTcGxpdCxhbGw9VFJVRSksbWF4RGVwdGgsYWxsPVRSVUUpXG5wYXJhbWV0ZXJzPC1tZXJnZShtZXJnZShjcCxidWNrZXRTcGxpdCxhbGw9VFJVRSksbWF4RGVwdGgsYWxsPVRSVUUpXG5cbnBhcmFtQ29tYm9zIDwtIG5yb3cocGFyYW1ldGVycylcblxuc2V0LnNlZWQocGFyYW1Db21ib3MpXG5cbnBhcmFtU2FtcGxlZGRmPC0gc2FtcGxlX24ocGFyYW1ldGVycywgKHBhcmFtQ29tYm9zLzUpKVxuXG5mb3JtYXR0YWJsZShoZWFkKHBhcmFtU2FtcGxlZGRmLDEwKSlcblxuYGBgIn0= -->
+<pre class="r"><code>#cost&lt;-data.frame(cost=c(0.00001, 0.0001, 0.001, 0.01, 0.1, 1.0, 5.0))
+
+cp&lt;-data.frame(cp=c(0.00001, 0.0001, 0.005, 0.01))
+
+bucketSplit&lt;-data.frame(minsplit =round(seq(2, 100, length=30),0)+ (round(seq(2, 100, length=30),0)%%2))
+bucketSplit$minbucket &lt;- bucketSplit$minsplit/2
+
+maxDepth&lt;-data.frame(maxDepth = round(seq(3, 30, length=10),0))
+
+#parameters&lt;-merge(merge(merge(cost,cp,all=TRUE),bucketSplit,all=TRUE),maxDepth,all=TRUE)
+parameters&lt;-merge(merge(cp,bucketSplit,all=TRUE),maxDepth,all=TRUE)
+
+paramCombos &lt;- nrow(parameters)
+
+set.seed(paramCombos)
+
+paramSampleddf&lt;- sample_n(parameters, (paramCombos/5))
+
+formattable(head(paramSampleddf,10))
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="rpart.control-parameter-analysis-and-prediction" class="section level3">
+<h3>rpart.control Parameter Analysis and Prediction</h3>
+<p>Having now defined our 240 unique combinations of cp, minsplit, minbucket, and maxDepth, we proceed with rendering our various partitioning trees to compare performance. Below, we segment each configuration into a list of 240 unique parameter combinations and then use lapply() to apply the rpart() function using each configuration.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGFyYW1TYW1wbGVkPC1zZXROYW1lcyhzcGxpdChwYXJhbVNhbXBsZWRkZiwgc2VxKG5yb3cocGFyYW1TYW1wbGVkZGYpKSksIHJvd25hbWVzKHBhcmFtU2FtcGxlZGRmKSlcblxuZml0cyA8LSBsYXBwbHkocGFyYW1TYW1wbGVkLCBmdW5jdGlvbih4KSB7XG4gIHJwYXJ0T2JqID0gcnBhcnQoaXNTcGFtIH4gLiwgZGF0YSA9IHRyYWluREYsXG4gICAgICAgICAgICAgICAgICAgbWV0aG9kPVwiY2xhc3NcIiwgXG4gICAgICAgICAgICAgICAgICAgI2Nvc3QgPSB4JGNvc3QsXG4gICAgICAgICAgICAgICAgICAgY29udHJvbCA9IHJwYXJ0LmNvbnRyb2woY3AgPSB4JGNwLCBtaW5zcGxpdCA9IHgkbWluc3BsaXQsIG1pbmJ1Y2tldCA9IHgkbWluYnVja2V0LCBtYXhkZXB0aCA9IHgkbWF4RGVwdGgpIClcbiAgXG4gIHByZWRpY3QocnBhcnRPYmosIFxuICAgICAgICAgIG5ld2RhdGEgPSB0ZXN0REZbICwgbmFtZXModGVzdERGKSAhPSBcImlzU3BhbVwiXSxcbiAgICAgICAgICB0eXBlID0gXCJjbGFzc1wiKVxuICB9KVxuXG5gYGAifQ== -->
+<pre class="r"><code>paramSampled&lt;-setNames(split(paramSampleddf, seq(nrow(paramSampleddf))), rownames(paramSampleddf))
+
+fits &lt;- lapply(paramSampled, function(x) {
+  rpartObj = rpart(isSpam ~ ., data = trainDF,
+                   method=&quot;class&quot;, 
+                   #cost = x$cost,
+                   control = rpart.control(cp = x$cp, minsplit = x$minsplit, minbucket = x$minbucket, maxdepth = x$maxDepth) )
+  
+  predict(rpartObj, 
+          newdata = testDF[ , names(testDF) != &quot;isSpam&quot;],
+          type = &quot;class&quot;)
+  })
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Upon implementing the above code chunk, a new list of prediction results (length 240) for the 3116 test messages is rendered. This means we now have 240 sets of prediction results for all 3116 test messages. We use this list to compute accuracies and compare overall classification performance of each input parameter configuration set.</p>
+<p>Prediction accuracies for each parameter combination are calculated next. This is done by processing our list of results and creating a new accuracy column in our previous parameter combination dataframe. The top 10 most accurate combinations are presented in the table that follows.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3BhbSA9IHRlc3RERiRpc1NwYW0gPT0gXCJUXCJcblxuYWNjdXJhY3kgPSBsYXBwbHkoZml0cyxmdW5jdGlvbih4KXtcbiAgeHRhYiA8LSB0YWJsZSh1bmxpc3QoeCksIHNwYW0pXG4gICNwcmludCh4dGFiKVxuICBzdW0oZGlhZyh4dGFiKSkvc3VtKHh0YWIpXG5cbiAgfSlcblxucGFyYW1TYW1wbGVkZGYkQWNjdXJhY2llcyA8LSB1bmxpc3QoYWNjdXJhY3kpXG5cbm1heEFjY3VyYWN5IDwtIG1heChwYXJhbVNhbXBsZWRkZiRBY2N1cmFjaWVzKVxuZm9ybWF0dGFibGUoaGVhZChwYXJhbVNhbXBsZWRkZltvcmRlcigtcGFyYW1TYW1wbGVkZGYkQWNjdXJhY2llcyksXSwxMCkpXG5gYGAifQ== -->
+<pre class="r"><code>spam = testDF$isSpam == &quot;T&quot;
+
+accuracy = lapply(fits,function(x){
+  xtab &lt;- table(unlist(x), spam)
+  #print(xtab)
+  sum(diag(xtab))/sum(xtab)
+
+  })
+
+paramSampleddf$Accuracies &lt;- unlist(accuracy)
+
+maxAccuracy &lt;- max(paramSampleddf$Accuracies)
+formattable(head(paramSampleddf[order(-paramSampleddf$Accuracies),],10))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>While this table is informative, the fact that we sampled the 1200 possible parameter combinations down to 240 makes it difficult to interpret with much granularity. For this reason, we take a novel approach to parameter assessment next. We’ve rendered the following scatterplot and correlation matrix comprised of rpart()/rpart.control() parameters and final accuracies to better assess performance. By visually treating accuracy as we would a response variable, and cp, minsplit, minbucket, and maxDepth as we would independent variables, we render the following scatterplot and correlation matrix.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVzIDwtIGNvcihwYXJhbVNhbXBsZWRkZilcblxuY2hhcnQuQ29ycmVsYXRpb24ocGFyYW1TYW1wbGVkZGYsIGhpc3RvZ3JhbT1UUlVFLCBwY2g9MTkpXG5cbmBgYCJ9 -->
+<pre class="r"><code>res &lt;- cor(paramSampleddf)
+
+chart.Correlation(paramSampleddf, histogram=TRUE, pch=19)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Each dot represents…..will continue Tuesday</p>
+<p>Notes for interpretation: In the above plot:</p>
+<ul>
+<li>The distribution of each variable is shown on the diagonal.</li>
+<li>On the bottom of the diagonal : the bivariate scatter plots with a fitted line are displayed</li>
+<li>On the top of the diagonal : the value of the correlation plus the significance level as stars</li>
+<li>Each significance level is associated to a symbol : p-values(0, 0.001, 0.01, 0.05, 0.1, 1) &lt;=&gt; symbols(“<em><strong>“,”</strong>“,”</em>”, “.”, &quot; “)</li>
+</ul>
+</div>
+<div id="comparison-to-default-results" class="section level3">
+<h3>Comparison to Default Results</h3>
+<p><code>3.915276</code>% increase in accuracy</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2NvZGUgaGVyZSB0byBydW4gZGVmYXVsdHNcblxucnBhcnRPYmogPSBycGFydChpc1NwYW0gfiAuLCBkYXRhID0gdHJhaW5ERiwgbWV0aG9kPVwiY2xhc3NcIilcblxuZGVmYXVsdFJlc3VsdHMgPC0gcHJlZGljdChycGFydE9iaiwgXG4gICAgICAgIG5ld2RhdGEgPSB0ZXN0REZbICwgbmFtZXModGVzdERGKSAhPSBcImlzU3BhbVwiXSxcbiAgICAgICAgdHlwZSA9IFwiY2xhc3NcIilcblxueHRhYiA8LSB0YWJsZSh1bmxpc3QoZGVmYXVsdFJlc3VsdHMpLCBzcGFtKVxuI3ByaW50KHh0YWIpXG5kZWZhdWx0QWNjdXJhY3k8LXN1bShkaWFnKHh0YWIpKS9zdW0oeHRhYilcbiNwcmludChkZWZhdWx0QWNjdXJhY3kpXG5gYGAifQ== -->
+<pre class="r"><code>#code here to run defaults
+
+rpartObj = rpart(isSpam ~ ., data = trainDF, method=&quot;class&quot;)
+
+defaultResults &lt;- predict(rpartObj, 
+        newdata = testDF[ , names(testDF) != &quot;isSpam&quot;],
+        type = &quot;class&quot;)
+
+xtab &lt;- table(unlist(defaultResults), spam)
+#print(xtab)
+defaultAccuracy&lt;-sum(diag(xtab))/sum(xtab)
+#print(defaultAccuracy)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -220,14 +344,21 @@ $(document).ready(function () {
 </div>
 <div id="discussion-and-future-works" class="section level2">
 <h2>Discussion and Future Works</h2>
+<ul>
+<li>Discuss cross validation and the utilization of the “xval” parameter in rpart.control</li>
+<li>Also, to take a more manual approach to modifications to inputs surrounding our winner, due to the “random” nature of our parameter tests, there may be further winnings with additional research</li>
+<li>Finally, precision and recall as a supplement to our result metric to ensure we have chosen the best model</li>
+<li>As an extension of this effort, future works would include a deeper investigation into relationships among derived variables and employing a text mining Naïve Bayes approach for an side-by-side comparison of model predicitons.</li>
+</ul>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
-<p>[1] D. Lang and D. Nolan, Data Science in R: A Case Studies Approach to Computation Reasoning and Problem Solving. New York, New York: CRC Press.</p>
+<p>[1] D. Lang and D. Nolan, Data Science in R: A Case Studies Approach to Computation Reasoning and Problem Solving. New York, New York: CRC Press. [2] B. Atkinson, B. Ripley, &amp; T. Therneau, Package ‘rpart’. Version 4.1-11. Online: 2017-03-12. <a href="https://cran.r-project.org/web/packages/rpart/rpart.pdf" class="uri">https://cran.r-project.org/web/packages/rpart/rpart.pdf</a></p>
 <!-- rnb-text-end -->
 </div>
+</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiVXNpbmcgU3RhdGlzdGljcyB0byBJZGVudGlmeSBTcGFtIC0gQ2FzZSBTdHVkeSBVbml0IDEwIgpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sKLS0tCgpUaGlzIGlzIGFuIFtSIE1hcmtkb3duXShodHRwOi8vcm1hcmtkb3duLnJzdHVkaW8uY29tKSBOb3RlYm9vay4gV2hlbiB5b3UgZXhlY3V0ZSBjb2RlIHdpdGhpbiB0aGUgbm90ZWJvb2ssIHRoZSByZXN1bHRzIGFwcGVhciBiZW5lYXRoIHRoZSBjb2RlLiAKCiMjIyNDb3J5IEFkYW1zLCBDaHJpcyBCb29taG93ZXIsIEFsZXhhbmRyYSBGaXNoZXIsIEFsZXggRnJ5ZQojIyMjTVNEUyA3MzMzLCBOb3ZlbWJlciAxMSwgMjAxNwoKKioqTk9URTogV2UgYXJlIEFuc3dlcmluZyBRLjE5IGZyb20gdGhlIERhdGEgU2NpZW5jZSBpbiBSIHRleHRib29rIChQZy4gMTY4KTogIkNvbnNpZGVyIHRoZSBvdGhlciBwYXJhbWV0ZXJzIHRoYXQgY2FuIGJlIHVzZWQgdG8gY29udHJvbCB0aGUgcmVjdXJzaXZlIHBhcnRpdGlvbmluZyBwcm9jZXNzLiBSZWFkIHRoZSBkb2N1bWVudGF0aW9uIGZvciB0aGVtIGluIHRoZSBycGFydC5jb250cm9sKCkgZG9jdW1lbnRhdGlvbi4gQWxzbywgY2Fycnkgb3V0IGFuIEludGVybmV0IHNlYXJjaCBmb3IgbW9yZSBpbmZvcm1hdGlvbiBvbiBob3cgdG8gdHdlYWsgdGhlIHJwYXJ0KCkgdHVuaW5nIHBhcmFtZXRlcnMuIEV4cGVyaW1lbnQgd2l0aCB2YWx1ZXMgZm9yIHRoZXNlIHBhcmFtZXRlcnMuIERvIHRoZSB0cmVlcyB0aGF0IHJlc3VsdCBtYWtlIHNlbnNlIHdpdGggeW91ciB1bmRlcnN0YW5kaW5nIG9mIGhvdyB0aGUgcGFyYW1ldGVycyBhcmUgdXNlZD8gQ2FuIHlvdSBpbXByb3ZlIHRoZSBwcmVkaWN0aW9uIHVzaW5nIHRoZW0/IioqKgoKIyMgQWJzdHJhY3QKCgojIyBJbnRyb2R1Y3Rpb24KCgojIyBCYWNrZ3JvdW5kCgoKIyMgTWV0aG9kcwpUaGUgc3RlcHMgdXNlZCBmb3IgdGhpcyBhbmFseXNpcyB3ZXJlOiAxKQoKKk5vdGUgdGhhdCBjb2RlIHVzZWQgaW5jbHVkZXMgbW9kaWZpZWQgdmVyc2lvbnMgb2YgUiBjb2RlIGZ1bmN0aW9uIGV4YW1wbGVzIGZvdW5kIGluIERhdGEgU2NpZW5jZSBpbiBSOiBBIENhc2UgU3R1ZGllcyBBcHByb2FjaCB0byBDb21wdXRhdGlvbmFsIFJlYXNvbmluZyBhbmQgUHJvYmxlbSBTb2x2aW5nLCBDaGFwdGVyIDIsIHBhZ2VzIDIyLVhYICwgYW5kIENoYXB0ZXIgNCwgcGFnZXMgWFhYLVhYWCBbMV0uKgoKCiMjIFJlc3VsdHMKCiMjIyBEYXRhIEFjcXVpc2l0aW9uCgpgYGB7ciBpbmNsdWRlPUZBTFNFLCBjYWNoZT1UUlVFfQpzb3VyY2UoJ0RhdGFFeHRyYWN0QW5kQ2xlYW4uUicsIGVjaG8gPSBGQUxTRSkKYGBgCgpgYGB7ciBlY2hvPUZBTFNFLCBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nID0gRkFMU0V9CiMjIyNMb2FkIExpYnJhcmllcwpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkocGxvdGx5KQpsaWJyYXJ5KHBseXIpCmxpYnJhcnkoZ3JpZCkKbGlicmFyeShncmlkRXh0cmEpCmxpYnJhcnkoZm9ybWF0dGFibGUpCmxpYnJhcnkoc3BhbSkKYGBgCgojIyMgQ29udHJvbCBmb3IgUnBhcnQgRml0cyAtIHBnLiAyMiBodHRwczovL2NyYW4uci1wcm9qZWN0Lm9yZy93ZWIvcGFja2FnZXMvcnBhcnQvcnBhcnQucGRmCgpgYGB7cn0KcnBhcnQuY29udHJvbChtaW5zcGxpdCA9IDIwLCBtaW5idWNrZXQgPSByb3VuZChtaW5zcGxpdC8zKSwgY3AgPSAwLjAxLAogICAgICAgICAgICAgICAgICBtYXhjb21wZXRlID0gNCwgbWF4c3Vycm9nYXRlID0gNSwgdXNlc3Vycm9nYXRlID0gMiwgeHZhbCA9IDEwLAogICAgICAgICAgICAgICAgICBzdXJyb2dhdGVzdHlsZSA9IDAsIG1heGRlcHRoID0gMzAsIC4uLikKYGBgCgoKCgojIyBEaXNjdXNzaW9uIGFuZCBGdXR1cmUgV29ya3MgCgoKIyMgUmVmZXJlbmNlcwpbMV0gRC4gTGFuZyBhbmQgRC4gTm9sYW4sIERhdGEgU2NpZW5jZSBpbiBSOiBBIENhc2UgU3R1ZGllcyBBcHByb2FjaCB0byBDb21wdXRhdGlvbiBSZWFzb25pbmcgYW5kIFByb2JsZW0gU29sdmluZy4gTmV3IFlvcmssIE5ldyBZb3JrOiBDUkMgUHJlc3MuIAo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiVXNpbmcgU3RhdGlzdGljcyB0byBJZGVudGlmeSBTcGFtIC0gQ2FzZSBTdHVkeSBVbml0IDEwIgpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sKLS0tCgpUaGlzIGlzIGFuIFtSIE1hcmtkb3duXShodHRwOi8vcm1hcmtkb3duLnJzdHVkaW8uY29tKSBOb3RlYm9vay4gV2hlbiB5b3UgZXhlY3V0ZSBjb2RlIHdpdGhpbiB0aGUgbm90ZWJvb2ssIHRoZSByZXN1bHRzIGFwcGVhciBiZW5lYXRoIHRoZSBjb2RlLiAKCiMjIyNDb3J5IEFkYW1zLCBDaHJpcyBCb29taG93ZXIsIEFsZXhhbmRyYSBGaXNoZXIsIEFsZXggRnJ5ZQojIyMjTVNEUyA3MzMzLCBOb3ZlbWJlciAxMSwgMjAxNwoKKioqTk9URTogV2UgYXJlIEFuc3dlcmluZyBRLjE5IGZyb20gdGhlIERhdGEgU2NpZW5jZSBpbiBSIHRleHRib29rIChQZy4gMTY4KTogIkNvbnNpZGVyIHRoZSBvdGhlciBwYXJhbWV0ZXJzIHRoYXQgY2FuIGJlIHVzZWQgdG8gY29udHJvbCB0aGUgcmVjdXJzaXZlIHBhcnRpdGlvbmluZyBwcm9jZXNzLiBSZWFkIHRoZSBkb2N1bWVudGF0aW9uIGZvciB0aGVtIGluIHRoZSBycGFydC5jb250cm9sKCkgZG9jdW1lbnRhdGlvbi4gQWxzbywgY2Fycnkgb3V0IGFuIEludGVybmV0IHNlYXJjaCBmb3IgbW9yZSBpbmZvcm1hdGlvbiBvbiBob3cgdG8gdHdlYWsgdGhlIHJwYXJ0KCkgdHVuaW5nIHBhcmFtZXRlcnMuIEV4cGVyaW1lbnQgd2l0aCB2YWx1ZXMgZm9yIHRoZXNlIHBhcmFtZXRlcnMuIERvIHRoZSB0cmVlcyB0aGF0IHJlc3VsdCBtYWtlIHNlbnNlIHdpdGggeW91ciB1bmRlcnN0YW5kaW5nIG9mIGhvdyB0aGUgcGFyYW1ldGVycyBhcmUgdXNlZD8gQ2FuIHlvdSBpbXByb3ZlIHRoZSBwcmVkaWN0aW9uIHVzaW5nIHRoZW0/IioqKgoKI0Fzc2lnbm1lbnRzIChEZWxldGUgVGhpcyBCZWZvcmUgU3VibWlzc2lvbikKKiBGaXNoZXIgLSBBYnN0cmFjdCwgSW50cm8sIEJhY2tncm91bmQsIERpc2N1c3Npb24gYW5kIEZ1dHVyZSBXb3JrCiogQ29yeSAtIExvYWQgYW5kIENsZWFuIChkaXNjbGFpbWVyKSwgcnBhcnQuY29udHJvbCBSZXNlYXJjaAoqIENocmlzIC0gcnBhcnQuY29udHJvbCBBbmFseXNpcyBhbmQgUHJlZGljdGlvbiwgQ29tcGFyaXNvbiB0byBkZWZhdWx0CiogRnJ5ZSAtIGNvZGluZy4uLmRvbmUKCiMjIEFic3RyYWN0CkluIHRoaXMgY2FzZSBzdHVkeSwgb3ZlciA5LDAwMCBlbWFpbCBtZXNzYWdlcyBhcmUgZXhhbWluZWQgaW4gb3JkZXIgdG8gZGV2ZWxvcCBhbmQgdGVzdCBzcGFtIGZpbHRlcnMgdmlhIGNsYXNzaWZpY2F0aW9uIHRyZWVzIGFuZCByZWN1cnNpdmUgcGFydGl0aW9uaW5nLiBTcGFtIGZpbHRlcnMgYXJlIHViaXF1aXRvdXMgdG9kYXkgYW1vbmcgZW1haWwgcHJvdmlkZXJzIGFuZCBhcmUgZGVzaWduZWQgdG8gZXhhbWluZSBjb250ZW50IGZvciByZWQgZmxhZ3MgYXMgaW5kaWNhdG9ycyBvZiBhIHdhbnRlZCBvciB1bndhbnRlZCBtZXNzYWdlLCByZXNwZWN0aXZlbHkga25vd24gYXMgaGFtIG9yIHNwYW0uIFNwYW0gZGF0YSB1c2VkIGNvbWVzIGZyb20gbWVzc2FnZXMgcHJldmlvdXNseSBjbGFzc2lmaWVkIGFzIGVpdGhlciBoYW0gb3Igc3BhbSBieSBTcGFtQXNzYXNzaW4gKGh0dHA6Ly9zcGFtYXNzYXNzaW4uYXBhY2hlLm9yZykgc3BlY2lmaWNhbGx5IGZvciBjcmVhdGluZyBhbmQgdGVzdGluZyB0aGVzZSBzcGFtIGZpbHRlcnMuIFIgc3RhdGlzdGljYWwgbGFuZ3VhZ2UgaXMgbGV2ZXJhZ2VkIGZvciBzcGFtIGRhdGEgY2xlYW51cCBhbmQgdGV4dCBwcm9jZXNzaW5nIHRocm91Z2ggdGhlIHVzZSBvZiBkZWNpc2lvbiB0cmVlcy4gVGhlIGRlY2lzaW9uIHRyZWUgYXBwcm9hY2ggdXNlcyBtZXNzYWdlIGNoYXJhY3RlcmlzdGljcyB0byBkZXJpdmUgc2V0cyBvZiBmZWF0dXJlcyBmb3IgZW1haWwgY2xhc3NpZmljYXRpb24sIGFuZCB0byBidWlsZCBhIGRlY2lzaW9uIHRyZWUgZnJvbSBkZXJpdmVkIGZlYXR1cmVzLCBhIHJlY3Vyc2l2ZSBwYXJ0aXRpb25pbmcgbWV0aG9kIGlzIGFwcGxpZWQuCgojIyBJbnRyb2R1Y3Rpb24KVGhpcyBjYXNlIHN0dWR5IHdhcyB1bmRlcnRha2VuIGluIG9yZGVyIHRvIGV4cGxvcmUgYW5kIHNoZWQgbGlnaHQgb24gYXV0b21hdGluZyBjbGFzc2lmaWNhdGlvbiBwcm9jZWR1cmVzIGZvciBmaWx0ZXJpbmcgdW53YW50ZWQgYW5kIHBvdGVudGlhbGx5IGhhcm1mdWwgZW1haWwgbWVzc2FnZXMsIHJlZmVycmVkIHRvIGhlcmVhZnRlciBhcyBzcGFtLiBTcGFtIGZpbHRlcnMgaGF2ZSBiZWNvbWUgdWJpcXVpdG91cyBhbW9uZyBhbGwgZW1haWwgcHJvdmlkZXJzIGFuZCBhcmUgZGVzaWduZWQgdG8gY2xvc2VseSBleGFtaW5lIGNvbnRlbnQgZm9yIHJlZCBmbGFncy4gQWZ0ZXIgYW5hbHl6aW5nIGNvbnRlbnQgZm9yIHJlZCBmbGFnIGNoYXJhY3RlcmlzdGljcywgc3BhbSBmaWx0ZXJzIHRoZW4gZGV0ZXJtaW5lIGlmIHRoZSBtZXNzYWdlIGlzIGVpdGhlciBhIHdhbnRlZC9kZXNpcmVkIG1lc3NhZ2UgKGhhbSkgb3IgYW4gdW53YW50ZWQgbWVzc2FnZSAoc3BhbSkuIFRoZXNlIHR5cGVzIG9mIGRldGVybWluYXRpb25zIGFyZSByb290ZWQgaW4gc3RhdGlzdGljYWwgYW5hbHlzZXMgb2YgbWFueSBlbWFpbHMgcHJldmlvdXNseSBjbGFzc2lmaWVkIGFzIGVpdGhlciBoYW0gb3Igc3BhbS4gCgpTcGFtIGRhdGEgdXNlZCBjb21lcyBmcm9tIDksMDAwIG1lc3NhZ2VzIHByZXZpb3VzbHkgY2xhc3NpZmllZCBieSBTcGFtQXNzYXNzaW4gKGh0dHA6Ly9zcGFtYXNzYXNzaW4uYXBhY2hlLm9yZykgc3BlY2lmaWNhbGx5IGZvciBjcmVhdGluZyBhbmQgdGVzdGluZyB0aGVzZSBzcGFtIGZpbHRlcnMuIEZpcnN0IGFuZCBmb3JlbW9zdCwgdGhlIGluZm9ybWF0aW9uIGNvbnRhaW5lZCBpbiB0aGUgbWVzc2FnZXMgbXVzdCBiZSBvcmdhbml6ZWQgYW5kIHByb2Nlc3NlZCBpbiBvcmRlciB0byBjb3JyZWN0bHkgcXVhbnRpZnkgZm9yIGZ1cnRoZXIgYW5hbHlzaXMuIFIgc3RhdGlzdGljYWwgbGFuZ3VhZ2UgaXMgbGV2ZXJhZ2VkIHRvIGNvbmR1Y3QgdGV4dCBwcm9jZXNzaW5nIGZvciB0aGlzIGluaXRpYWwgc3RlcCBhbmQgdHdvIGFwcHJvYWNoZXMgY2FuIGJlIHV0aWxpemVk4oCUdGV4dCBtaW5pbmcgb3IgZGVjaXNpb24gdHJlZXMuIFRoZSB0ZXh0IG1pbmluZyBhcHByb2FjaCBzaW1wbHkgdGFsbGllcyB3b3JkcyBhbmQgY29tcGFyZXMgYXNzb2NpYXRlZCBmcmVxdWVuY2llcyBpbiBoYW0gdmVyc3VzIHNwYW0sIHdoaWxlIHRoZSBkZWNpc2lvbiB0cmVlIGFwcHJvYWNoIHVzZXMgbWVzc2FnZSBjaGFyYWN0ZXJpc3RpY3MgdG8gZGVyaXZlIHZhcmlhYmxlcyBmb3IgZW1haWwgY2xhc3NpZmljYXRpb24uIEZvciB0aGUgcHVycG9zZXMgb2YgdGhpcyBjYXNlIHN0dWR5LCBvbmx5IHRoZSBkZWNpc2lvbiB0cmVlIGFwcHJvYWNoIGlzIHVzZWQuIAoKVG8gcmVhZCB0aGUgOSwwMDAgZW1haWwgbWVzc2FnZXMgaW50byBSLCBlYWNoIGZpbGUgaXMgcmVhZCBhcyBpdHMgb3duIG1lc3NhZ2UuIFZhcmlvdXMgcGFydHMgYXJlIHRoZW4gaWRlbnRpZmllZCB3aXRoaW4gZWFjaCBtZXNzYWdlIGFzIG9uZSBvZiB0aGUgZm9sbG93aW5nOiAoMSkgdGhlIGhlYWRlciAoc2VuZGVyIGFuZCBzdWJqZWN0IGluZm9ybWF0aW9uKTsgKDIpIHRoZSBtZXNzYWdlIGJvZHk7IG9yICgzKSBhbiBhdHRhY2htZW50LiBIb3dldmVyLCBwcmlvciB0byBkZXNpZ25pbmcgZGF0YSBleHRyYWN0aW9uLCB3ZSBpbnZlc3RpZ2F0ZSBlbWFpbCBzdHJ1Y3R1cmVzIHRvIGRldGFpbCBhbmQgdW5kZXJzdGFuZCB0aGUgZ2VuZXJhbCBtZXNzYWdlIGZvcm1hdC4gVGhlbiB0aGUgaGVhZGVycyBhbmQgbWVzc2FnZSBib2RpZXMgY2FuIGJlIHByb2Nlc3NlZCBmb3IgZXh0cmFjdGlvbi4gRXhhbXBsZXMgb2Yga2V5IGluZm9ybWF0aW9uIGdhdGhlcmVkIGluY2x1ZGUgaWRlbnRpZnlpbmcgZXhjZXNzaXZlIGFtb3VudHMgb2YgcHVuY3R1YXRpb24gYW5kIGNhcGl0YWxpemF0aW9uIGluIHRoZSBzdWJqZWN0IGxpbmUgb3IgY2hhcmFjdGVyIGNvdW50IGFuZCBmcmVxdWVuY3kgaW4gdGhlIGJvZHkuIFRoZSBkZWNpc2lvbiB0cmVlIGlzIHRoZW4gdXNlZCB0byBkZXJpdmUgdmFyaWFibGVzIGFzc29jaWF0ZWQgd2l0aCBjZXJ0YWluIGNoYXJhY3RlcmlzdGljcyB0byBjbGFzc2lmeSB0aGUgbWVzc2FnZXMuIAoKIyMgQmFja2dyb3VuZApUbyBidWlsZCBhIGRlY2lzaW9uIHRyZWUgZnJvbSBkZXJpdmVkIGZlYXR1cmVzLCBhIHJlY3Vyc2l2ZSBwYXJ0aXRpb25pbmcgbWV0aG9kIGlzIGFwcGxpZWQuIAoKCiMjIE1ldGhvZHMKVGhlIHN0ZXBzIHVzZWQgZm9yIHRoaXMgYW5hbHlzaXMgd2VyZTogMSkgTG9hZCBhbmQgQ2xlYW4gdGhlIGRhdGE7IDIpIHJwYXJ0LmNvbnRyb2wgUGFyYW1ldGVyIFJlc2VhcmNoOyAzKSBycGFydC5jb250cm9sIFBhcmFtZXRlciBBbmFseXNpcyBhbmQgUHJlZGljdGlvbjsgNCkgQ29tcGFyaXNvbiB0byBEZWZhdWx0IFJlc3VsdHMuCgoqTm90ZSB0aGF0IGNvZGUgdXNlZCBpbmNsdWRlcyBtb2RpZmllZCB2ZXJzaW9ucyBvZiBSIGNvZGUgZnVuY3Rpb24gZXhhbXBsZXMgZm91bmQgaW4gRGF0YSBTY2llbmNlIGluIFI6IEEgQ2FzZSBTdHVkaWVzIEFwcHJvYWNoIHRvIENvbXB1dGF0aW9uYWwgUmVhc29uaW5nIGFuZCBQcm9ibGVtIFNvbHZpbmcsIENoYXB0ZXIgMywgcGFnZXMgMTA3LTE2NCBbMV0uKgoKIyMgUmVzdWx0cwoKIyMjIERhdGEgQWNxdWlzaXRpb24KYGBge3IgZWNobz1GQUxTRSwgbWVzc2FnZT1GQUxTRSwgd2FybmluZyA9IEZBTFNFfQojIyMjTG9hZCBMaWJyYXJpZXMKbGlicmFyeShnZ3Bsb3QyKQpsaWJyYXJ5KHBsb3RseSkKbGlicmFyeShwbHlyKQpsaWJyYXJ5KGdyaWQpCmxpYnJhcnkoZ3JpZEV4dHJhKQpsaWJyYXJ5KGZvcm1hdHRhYmxlKQpsaWJyYXJ5KHNwYW0pCmxpYnJhcnkoUkNvbG9yQnJld2VyKQpsaWJyYXJ5KHJwYXJ0KQpsaWJyYXJ5KGRwbHlyKQpsaWJyYXJ5KGNvcnJwbG90KQpsaWJyYXJ5KFBlcmZvcm1hbmNlQW5hbHl0aWNzKQpsaWJyYXJ5KHJwYXJ0LnBsb3QpCmxpYnJhcnkocnBhcnQpCmxpYnJhcnkoUkNvbG9yQnJld2VyKQpsaWJyYXJ5KHRtKQpgYGAKCmBgYHtyIGluY2x1ZGU9RkFMU0UsIGNhY2hlPVRSVUUsIGVjaG8gPSBGQUxTRSwgd2FybmluZz1GQUxTRX0Kc291cmNlKCdEYXRhRXh0cmFjdEFuZENsZWFuLlInLCBlY2hvID0gRkFMU0UpCmBgYAoKCiMjIyBycGFydC5jb250cm9sIFBhcmFtZXRlciBSZXNlYXJjaAoKV2lsbCBhZGp1c3QgZm9sbG93aW5nIHBhcmFtZXRlcnM6CgogICogY3AgKGNvbnRyb2wpCiAgKiBtaW5zcGxpdCAoY29udHJvbCkgMjoxIHdpdGggbWluYnVja2V0CiAgKiBtaW5idWNrZXQgKGNvbnRyb2wpIDE6MiB3aXRoIG1pbnNwbGl0CiAgKiBtYXhkZXB0aCAoY29udHJvbCkKCkJlbG93IGNvZGUgY29waWVkIGZyb20gRGF0YUV4dHJhY3RBbmRDbGVhbi5SIGJ1dCBuZWVkcyBtb2RpZmllZCB0byB3b3JrIHdpdGggYWJvdmUgcGFyYW1ldGVycy4gCgoKVG90YWwgcGFyYW1ldGVyIGNvbWJpbmF0aW9ucyBnZW5lcmF0ZWQ6IGBgYGByIHBhcmFtQ29tYm9zYGBgYCA8YnI+ClBhcmFtZXRlciBDb21iaW5hdGlvbnMgU2FtcGxlZCB0bzogYGBgYHIgcGFyYW1Db21ib3MvNWBgYGAKCmBgYHtyfQojY29zdDwtZGF0YS5mcmFtZShjb3N0PWMoMC4wMDAwMSwgMC4wMDAxLCAwLjAwMSwgMC4wMSwgMC4xLCAxLjAsIDUuMCkpCgpjcDwtZGF0YS5mcmFtZShjcD1jKDAuMDAwMDEsIDAuMDAwMSwgMC4wMDUsIDAuMDEpKQoKYnVja2V0U3BsaXQ8LWRhdGEuZnJhbWUobWluc3BsaXQgPXJvdW5kKHNlcSgyLCAxMDAsIGxlbmd0aD0zMCksMCkrIChyb3VuZChzZXEoMiwgMTAwLCBsZW5ndGg9MzApLDApJSUyKSkKYnVja2V0U3BsaXQkbWluYnVja2V0IDwtIGJ1Y2tldFNwbGl0JG1pbnNwbGl0LzIKCm1heERlcHRoPC1kYXRhLmZyYW1lKG1heERlcHRoID0gcm91bmQoc2VxKDMsIDMwLCBsZW5ndGg9MTApLDApKQoKI3BhcmFtZXRlcnM8LW1lcmdlKG1lcmdlKG1lcmdlKGNvc3QsY3AsYWxsPVRSVUUpLGJ1Y2tldFNwbGl0LGFsbD1UUlVFKSxtYXhEZXB0aCxhbGw9VFJVRSkKcGFyYW1ldGVyczwtbWVyZ2UobWVyZ2UoY3AsYnVja2V0U3BsaXQsYWxsPVRSVUUpLG1heERlcHRoLGFsbD1UUlVFKQoKcGFyYW1Db21ib3MgPC0gbnJvdyhwYXJhbWV0ZXJzKQoKc2V0LnNlZWQocGFyYW1Db21ib3MpCgpwYXJhbVNhbXBsZWRkZjwtIHNhbXBsZV9uKHBhcmFtZXRlcnMsIChwYXJhbUNvbWJvcy81KSkKCmZvcm1hdHRhYmxlKGhlYWQocGFyYW1TYW1wbGVkZGYsMTApKQoKYGBgCgojIyMgcnBhcnQuY29udHJvbCBQYXJhbWV0ZXIgQW5hbHlzaXMgYW5kIFByZWRpY3Rpb24KSGF2aW5nIG5vdyBkZWZpbmVkIG91ciAyNDAgdW5pcXVlIGNvbWJpbmF0aW9ucyBvZiBjcCwgbWluc3BsaXQsIG1pbmJ1Y2tldCwgYW5kIG1heERlcHRoLCB3ZSBwcm9jZWVkIHdpdGggcmVuZGVyaW5nIG91ciB2YXJpb3VzIHBhcnRpdGlvbmluZyB0cmVlcyB0byBjb21wYXJlIHBlcmZvcm1hbmNlLiBCZWxvdywgd2Ugc2VnbWVudCBlYWNoIGNvbmZpZ3VyYXRpb24gaW50byBhIGxpc3Qgb2YgMjQwIHVuaXF1ZSBwYXJhbWV0ZXIgY29tYmluYXRpb25zIGFuZCB0aGVuIHVzZSBsYXBwbHkoKSB0byBhcHBseSB0aGUgcnBhcnQoKSBmdW5jdGlvbiB1c2luZyBlYWNoIGNvbmZpZ3VyYXRpb24uIApgYGB7cn0KcGFyYW1TYW1wbGVkPC1zZXROYW1lcyhzcGxpdChwYXJhbVNhbXBsZWRkZiwgc2VxKG5yb3cocGFyYW1TYW1wbGVkZGYpKSksIHJvd25hbWVzKHBhcmFtU2FtcGxlZGRmKSkKCmZpdHMgPC0gbGFwcGx5KHBhcmFtU2FtcGxlZCwgZnVuY3Rpb24oeCkgewogIHJwYXJ0T2JqID0gcnBhcnQoaXNTcGFtIH4gLiwgZGF0YSA9IHRyYWluREYsCiAgICAgICAgICAgICAgICAgICBtZXRob2Q9ImNsYXNzIiwgCiAgICAgICAgICAgICAgICAgICAjY29zdCA9IHgkY29zdCwKICAgICAgICAgICAgICAgICAgIGNvbnRyb2wgPSBycGFydC5jb250cm9sKGNwID0geCRjcCwgbWluc3BsaXQgPSB4JG1pbnNwbGl0LCBtaW5idWNrZXQgPSB4JG1pbmJ1Y2tldCwgbWF4ZGVwdGggPSB4JG1heERlcHRoKSApCiAgCiAgcHJlZGljdChycGFydE9iaiwgCiAgICAgICAgICBuZXdkYXRhID0gdGVzdERGWyAsIG5hbWVzKHRlc3RERikgIT0gImlzU3BhbSJdLAogICAgICAgICAgdHlwZSA9ICJjbGFzcyIpCiAgfSkKCmBgYAoKVXBvbiBpbXBsZW1lbnRpbmcgdGhlIGFib3ZlIGNvZGUgY2h1bmssIGEgbmV3IGxpc3Qgb2YgcHJlZGljdGlvbiByZXN1bHRzIChsZW5ndGggMjQwKSBmb3IgdGhlIDMxMTYgdGVzdCBtZXNzYWdlcyBpcyByZW5kZXJlZC4gVGhpcyBtZWFucyB3ZSBub3cgaGF2ZSAyNDAgc2V0cyBvZiBwcmVkaWN0aW9uIHJlc3VsdHMgZm9yIGFsbCAzMTE2IHRlc3QgbWVzc2FnZXMuIFdlIHVzZSB0aGlzIGxpc3QgdG8gY29tcHV0ZSBhY2N1cmFjaWVzIGFuZCBjb21wYXJlIG92ZXJhbGwgY2xhc3NpZmljYXRpb24gcGVyZm9ybWFuY2Ugb2YgZWFjaCBpbnB1dCBwYXJhbWV0ZXIgY29uZmlndXJhdGlvbiBzZXQuCgpQcmVkaWN0aW9uIGFjY3VyYWNpZXMgZm9yIGVhY2ggcGFyYW1ldGVyIGNvbWJpbmF0aW9uIGFyZSBjYWxjdWxhdGVkIG5leHQuIFRoaXMgaXMgZG9uZSBieSBwcm9jZXNzaW5nIG91ciBsaXN0IG9mIHJlc3VsdHMgYW5kIGNyZWF0aW5nIGEgbmV3IGFjY3VyYWN5IGNvbHVtbiBpbiBvdXIgcHJldmlvdXMgcGFyYW1ldGVyIGNvbWJpbmF0aW9uIGRhdGFmcmFtZS4gVGhlIHRvcCAxMCBtb3N0IGFjY3VyYXRlIGNvbWJpbmF0aW9ucyBhcmUgcHJlc2VudGVkIGluIHRoZSB0YWJsZSB0aGF0IGZvbGxvd3MuCgpgYGB7ciB3YXJuaW5nPUZBTFNFfQpzcGFtID0gdGVzdERGJGlzU3BhbSA9PSAiVCIKCmFjY3VyYWN5ID0gbGFwcGx5KGZpdHMsZnVuY3Rpb24oeCl7CiAgeHRhYiA8LSB0YWJsZSh1bmxpc3QoeCksIHNwYW0pCiAgI3ByaW50KHh0YWIpCiAgc3VtKGRpYWcoeHRhYikpL3N1bSh4dGFiKQoKICB9KQoKcGFyYW1TYW1wbGVkZGYkQWNjdXJhY2llcyA8LSB1bmxpc3QoYWNjdXJhY3kpCgptYXhBY2N1cmFjeSA8LSBtYXgocGFyYW1TYW1wbGVkZGYkQWNjdXJhY2llcykKZm9ybWF0dGFibGUoaGVhZChwYXJhbVNhbXBsZWRkZltvcmRlcigtcGFyYW1TYW1wbGVkZGYkQWNjdXJhY2llcyksXSwxMCkpCmBgYAoKV2hpbGUgdGhpcyB0YWJsZSBpcyBpbmZvcm1hdGl2ZSwgdGhlIGZhY3QgdGhhdCB3ZSBzYW1wbGVkIHRoZSAxMjAwIHBvc3NpYmxlIHBhcmFtZXRlciBjb21iaW5hdGlvbnMgZG93biB0byAyNDAgbWFrZXMgaXQgZGlmZmljdWx0IHRvIGludGVycHJldCB3aXRoIG11Y2ggZ3JhbnVsYXJpdHkuIEZvciB0aGlzIHJlYXNvbiwgd2UgdGFrZSBhIG5vdmVsIGFwcHJvYWNoIHRvIHBhcmFtZXRlciBhc3Nlc3NtZW50IG5leHQuIFdlJ3ZlIHJlbmRlcmVkIHRoZSBmb2xsb3dpbmcgc2NhdHRlcnBsb3QgYW5kIGNvcnJlbGF0aW9uIG1hdHJpeCBjb21wcmlzZWQgb2YgcnBhcnQoKS9ycGFydC5jb250cm9sKCkgcGFyYW1ldGVycyBhbmQgZmluYWwgYWNjdXJhY2llcyB0byBiZXR0ZXIgYXNzZXNzIHBlcmZvcm1hbmNlLiBCeSB2aXN1YWxseSB0cmVhdGluZyBhY2N1cmFjeSBhcyB3ZSB3b3VsZCBhIHJlc3BvbnNlIHZhcmlhYmxlLCBhbmQgY3AsIG1pbnNwbGl0LCBtaW5idWNrZXQsIGFuZCBtYXhEZXB0aCBhcyB3ZSB3b3VsZCBpbmRlcGVuZGVudCB2YXJpYWJsZXMsIHdlIHJlbmRlciB0aGUgZm9sbG93aW5nIHNjYXR0ZXJwbG90IGFuZCBjb3JyZWxhdGlvbiBtYXRyaXguCgpgYGB7ciB3YXJuaW5nPUZBTFNFfQpyZXMgPC0gY29yKHBhcmFtU2FtcGxlZGRmKQoKY2hhcnQuQ29ycmVsYXRpb24ocGFyYW1TYW1wbGVkZGYsIGhpc3RvZ3JhbT1UUlVFLCBwY2g9MTkpCgpgYGAKCkVhY2ggZG90IHJlcHJlc2VudHMuLi4uLndpbGwgY29udGludWUgVHVlc2RheQoKTm90ZXMgZm9yIGludGVycHJldGF0aW9uOgpJbiB0aGUgYWJvdmUgcGxvdDoKCiogVGhlIGRpc3RyaWJ1dGlvbiBvZiBlYWNoIHZhcmlhYmxlIGlzIHNob3duIG9uIHRoZSBkaWFnb25hbC4KKiBPbiB0aGUgYm90dG9tIG9mIHRoZSBkaWFnb25hbCA6IHRoZSBiaXZhcmlhdGUgc2NhdHRlciBwbG90cyB3aXRoIGEgZml0dGVkIGxpbmUgYXJlIGRpc3BsYXllZAoqIE9uIHRoZSB0b3Agb2YgdGhlIGRpYWdvbmFsIDogdGhlIHZhbHVlIG9mIHRoZSBjb3JyZWxhdGlvbiBwbHVzIHRoZSBzaWduaWZpY2FuY2UgbGV2ZWwgYXMgc3RhcnMKKiBFYWNoIHNpZ25pZmljYW5jZSBsZXZlbCBpcyBhc3NvY2lhdGVkIHRvIGEgc3ltYm9sIDogcC12YWx1ZXMoMCwgMC4wMDEsIDAuMDEsIDAuMDUsIDAuMSwgMSkgPD0+IHN5bWJvbHMoIioqKiIsICIqKiIsICIqIiwgIi4iLCAiICIpCgoKIyMjIENvbXBhcmlzb24gdG8gRGVmYXVsdCBSZXN1bHRzCgpgYGBgciAobWF4QWNjdXJhY3ktZGVmYXVsdEFjY3VyYWN5KSoxMDBgYGBgJSBpbmNyZWFzZSBpbiBhY2N1cmFjeQoKYGBge3J9CiNjb2RlIGhlcmUgdG8gcnVuIGRlZmF1bHRzCgpycGFydE9iaiA9IHJwYXJ0KGlzU3BhbSB+IC4sIGRhdGEgPSB0cmFpbkRGLCBtZXRob2Q9ImNsYXNzIikKCmRlZmF1bHRSZXN1bHRzIDwtIHByZWRpY3QocnBhcnRPYmosIAogICAgICAgIG5ld2RhdGEgPSB0ZXN0REZbICwgbmFtZXModGVzdERGKSAhPSAiaXNTcGFtIl0sCiAgICAgICAgdHlwZSA9ICJjbGFzcyIpCgp4dGFiIDwtIHRhYmxlKHVubGlzdChkZWZhdWx0UmVzdWx0cyksIHNwYW0pCiNwcmludCh4dGFiKQpkZWZhdWx0QWNjdXJhY3k8LXN1bShkaWFnKHh0YWIpKS9zdW0oeHRhYikKI3ByaW50KGRlZmF1bHRBY2N1cmFjeSkKYGBgCgoKIyMgRGlzY3Vzc2lvbiBhbmQgRnV0dXJlIFdvcmtzIAoqIERpc2N1c3MgY3Jvc3MgdmFsaWRhdGlvbiBhbmQgdGhlIHV0aWxpemF0aW9uIG9mIHRoZSAieHZhbCIgcGFyYW1ldGVyIGluIHJwYXJ0LmNvbnRyb2wKKiBBbHNvLCB0byB0YWtlIGEgbW9yZSBtYW51YWwgYXBwcm9hY2ggdG8gbW9kaWZpY2F0aW9ucyB0byBpbnB1dHMgc3Vycm91bmRpbmcgb3VyIHdpbm5lciwgZHVlIHRvIHRoZSAicmFuZG9tIiBuYXR1cmUgb2Ygb3VyIHBhcmFtZXRlciB0ZXN0cywgdGhlcmUgbWF5IGJlIGZ1cnRoZXIgd2lubmluZ3Mgd2l0aCBhZGRpdGlvbmFsIHJlc2VhcmNoCiogRmluYWxseSwgcHJlY2lzaW9uIGFuZCByZWNhbGwgYXMgYSBzdXBwbGVtZW50IHRvIG91ciByZXN1bHQgbWV0cmljIHRvIGVuc3VyZSB3ZSBoYXZlIGNob3NlbiB0aGUgYmVzdCBtb2RlbAoqIEFzIGFuIGV4dGVuc2lvbiBvZiB0aGlzIGVmZm9ydCwgZnV0dXJlIHdvcmtzIHdvdWxkIGluY2x1ZGUgYSBkZWVwZXIgaW52ZXN0aWdhdGlvbiBpbnRvIHJlbGF0aW9uc2hpcHMgYW1vbmcgZGVyaXZlZCB2YXJpYWJsZXMgYW5kIGVtcGxveWluZyBhIHRleHQgbWluaW5nIE5hw692ZSBCYXllcyBhcHByb2FjaCBmb3IgYW4gc2lkZS1ieS1zaWRlIGNvbXBhcmlzb24gb2YgbW9kZWwgcHJlZGljaXRvbnMuIAoKIyMgUmVmZXJlbmNlcwpbMV0gRC4gTGFuZyBhbmQgRC4gTm9sYW4sIERhdGEgU2NpZW5jZSBpbiBSOiBBIENhc2UgU3R1ZGllcyBBcHByb2FjaCB0byBDb21wdXRhdGlvbiBSZWFzb25pbmcgYW5kIFByb2JsZW0gU29sdmluZy4gTmV3IFlvcmssIE5ldyBZb3JrOiBDUkMgUHJlc3MuIApbMl0gQi4gQXRraW5zb24sIEIuIFJpcGxleSwgJiBULiBUaGVybmVhdSwgUGFja2FnZSAncnBhcnQnLiBWZXJzaW9uIDQuMS0xMS4gT25saW5lOiAyMDE3LTAzLTEyLiBodHRwczovL2NyYW4uci1wcm9qZWN0Lm9yZy93ZWIvcGFja2FnZXMvcnBhcnQvcnBhcnQucGRmIAo=</div>
 
 
 

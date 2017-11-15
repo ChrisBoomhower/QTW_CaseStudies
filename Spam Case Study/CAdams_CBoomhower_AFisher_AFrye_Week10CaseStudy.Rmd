@@ -10,30 +10,30 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 
 ***NOTE: We are Answering Q.19 from the Data Science in R textbook (Pg. 168): "Consider the other parameters that can be used to control the recursive partitioning process. Read the documentation for them in the rpart.control() documentation. Also, carry out an Internet search for more information on how to tweak the rpart() tuning parameters. Experiment with values for these parameters. Do the trees that result make sense with your understanding of how the parameters are used? Can you improve the prediction using them?"***
 
-
 #Assignments (Delete This Before Submission)
-
 * Fisher - Abstract, Intro, Background, Discussion and Future Work
 * Cory - Load and Clean (disclaimer), rpart.control Research
 * Chris - rpart.control Analysis and Prediction, Comparison to default
 * Frye - coding...done
 
-
-
 ## Abstract
-
+In this case study, over 9,000 email messages are examined in order to develop and test spam filters via classification trees and recursive partitioning. Spam filters are ubiquitous today among email providers and are designed to examine content for red flags as indicators of a wanted or unwanted message, respectively known as ham or spam. Spam data used comes from messages previously classified as either ham or spam by SpamAssassin (http://spamassassin.apache.org) specifically for creating and testing these spam filters. R statistical language is leveraged for spam data cleanup and text processing through the use of decision trees. The decision tree approach uses message characteristics to derive sets of features for email classification, and to build a decision tree from derived features, a recursive partitioning method is applied.
 
 ## Introduction
+This case study was undertaken in order to explore and shed light on automating classification procedures for filtering unwanted and potentially harmful email messages, referred to hereafter as spam. Spam filters have become ubiquitous among all email providers and are designed to closely examine content for red flags. After analyzing content for red flag characteristics, spam filters then determine if the message is either a wanted/desired message (ham) or an unwanted message (spam). These types of determinations are rooted in statistical analyses of many emails previously classified as either ham or spam. 
 
+Spam data used comes from 9,000 messages previously classified by SpamAssassin (http://spamassassin.apache.org) specifically for creating and testing these spam filters. First and foremost, the information contained in the messages must be organized and processed in order to correctly quantify for further analysis. R statistical language is leveraged to conduct text processing for this initial step and two approaches can be utilized—text mining or decision trees. The text mining approach simply tallies words and compares associated frequencies in ham versus spam, while the decision tree approach uses message characteristics to derive variables for email classification. For the purposes of this case study, only the decision tree approach is used. 
+
+To read the 9,000 email messages into R, each file is read as its own message. Various parts are then identified within each message as one of the following: (1) the header (sender and subject information); (2) the message body; or (3) an attachment. However, prior to designing data extraction, we investigate email structures to detail and understand the general message format. Then the headers and message bodies can be processed for extraction. Examples of key information gathered include identifying excessive amounts of punctuation and capitalization in the subject line or character count and frequency in the body. The decision tree is then used to derive variables associated with certain characteristics to classify the messages. 
 
 ## Background
+To build a decision tree from derived features, a recursive partitioning method is applied. 
 
 
 ## Methods
 The steps used for this analysis were: 1) Load and Clean the data; 2) rpart.control Parameter Research; 3) rpart.control Parameter Analysis and Prediction; 4) Comparison to Default Results.
 
-*Note that code used includes modified versions of R code function examples found in Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving, Chapter 2, pages 22-XX , and Chapter 4, pages XXX-XXX [1].*
-
+*Note that code used includes modified versions of R code function examples found in Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving, Chapter 3, pages 107-164 [1].*
 
 ## Results
 
@@ -177,7 +177,11 @@ defaultAccuracy<-sum(diag(xtab))/sum(xtab)
 
 
 ## Discussion and Future Works 
-
+* Discuss cross validation and the utilization of the "xval" parameter in rpart.control
+* Also, to take a more manual approach to modifications to inputs surrounding our winner, due to the "random" nature of our parameter tests, there may be further winnings with additional research
+* Finally, precision and recall as a supplement to our result metric to ensure we have chosen the best model
+* As an extension of this effort, future works would include a deeper investigation into relationships among derived variables and employing a text mining Naïve Bayes approach for an side-by-side comparison of model predicitons. 
 
 ## References
 [1] D. Lang and D. Nolan, Data Science in R: A Case Studies Approach to Computation Reasoning and Problem Solving. New York, New York: CRC Press. 
+[2] B. Atkinson, B. Ripley, & T. Therneau, Package 'rpart'. Version 4.1-11. Online: 2017-03-12. https://cran.r-project.org/web/packages/rpart/rpart.pdf 

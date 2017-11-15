@@ -58,6 +58,8 @@ library(RColorBrewer)
 library(tm)
 ```
 
+To begin, we utilized methods provided in the Data Science in R textbook to load a "clean" dataset for spam and ham samples and the associated features. As the purpose of this analysis is to research this data post load, we have excluded the text processing and feature engineering from this analysis. The data is loaded external to the notebook in the ```DataExtractAndClean.R``` file allowing us to focus on our analysis of parameter tuning.
+
 ```{r include=FALSE, cache=TRUE, echo = FALSE, warning=FALSE}
 source('DataExtractAndClean.R', echo = FALSE)
 ```
@@ -65,15 +67,21 @@ source('DataExtractAndClean.R', echo = FALSE)
 
 ### rpart.control Parameter Research
 
-Will adjust following parameters:
+We have spent significant time to process the data and output features for our model development. However, the goal is fit the best model possible with this data. Once you feel your data is "clean" and accurate, performance gains usually come in the form of tuning the parameters passed to the algorithm. This project uses rpart partitioning algorithm, which exposes several parameters/arguments through the rpart.control function. This function enables us to control each parameter input and compare the results. However, the rpart.control function does not accept a list of values for each parameter to generate all possible combinations of the argument values. This is a limitation we must address with custom code.
 
-  * cp (control)
-  * minsplit (control) 2:1 with minbucket
-  * minbucket (control) 1:2 with minsplit
-  * maxdepth (control)
+The code below will create 1200 combinations of these parameter values we can then pass to the control function for evaluation and identification of the optimal paramater value combination. However, 1200 paramater combinations requires significant processing time. For this reason we sampled the 1200 combinations and selected 240 for processing.
 
-Below code copied from DataExtractAndClean.R but needs modified to work with above parameters. 
+This experiment will focus on the following parameters as input to rpart.control:
 
+  * cp (control) - This parameter is to optimize computing time by removing splits that do not increase the R-squared value by the defined cp value at each step. For this project we have chosen the following cp values: 0.00001, 0.0001, 0.005, and 0.01.
+  
+  * minsplit (control) - rpart builds models that result in tree. This tree must have branches and values leading to an end node result. The minsplit parameter defines the number of observations necessary for a split or branch to be considered. For this project we have chosen to have a 2:1 ratio with minbucket. Keeping the same ratio allows us to normalize the parameter values.
+
+  * minbucket (control) - This parameter determines the lowest possible value for the number of observations in an end node. For this project we have chosen to have a 1:2 ratio with minsplit. Keeping the same ratio allows us to normalize the parameter values.
+  
+  * maxdepth (control) - This parameter defines how many levels of nodes (splits) the final output tree may contain. If the tree contains too many levels, or too much depth, it will likely output poor results (potential overfitting). 
+  
+Again, the code below will output a dataframe with 240 parameter combinations sampled from the initial 1200 parameter combinations created using the cp, minsplit, minbucket, and maxdepth parameters. Each of these parameter combinations are now ready to be passed to the rpart.control function (in a loop) to identify the optimal combination. The graphic below shows the first 10 combinations of sampled parameters merged into a single dataframe. This provides a good representation of the parameter combinations we developed and demonstrates the spread of values tested.
 
 Total parameter combinations generated: ````r paramCombos```` <br>
 Parameter Combinations Sampled to: ````r paramCombos/5````
@@ -100,6 +108,7 @@ paramSampleddf<- sample_n(parameters, (paramCombos/5))
 formattable(head(paramSampleddf,10))
 
 ```
+
 
 ### rpart.control Parameter Analysis and Prediction
 Having now defined our 240 unique combinations of cp, minsplit, minbucket, and maxDepth, we proceed with rendering our various partitioning trees to compare performance. Below, we segment each configuration into a list of 240 unique parameter combinations and then use lapply() to apply the rpart() function using each configuration. 

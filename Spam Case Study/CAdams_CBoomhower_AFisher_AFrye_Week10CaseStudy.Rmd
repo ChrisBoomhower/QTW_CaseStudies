@@ -119,9 +119,9 @@ fits <- lapply(paramSampled, function(x) {
 
 ```
 
-Upon implementing the above code chunk, a new list of prediction results (length 240) for the 3116 test messages is rendered. This means we now have 240 sets of prediction results for all 3116 test messages. We use this list to compute accuracies and compare overall classification performance of each input parameter configuration set.
+Upon implementing the above code chunk, a new list of prediction results (length 240) for the 3116 test messages is rendered. This means we now have 240 sets of prediction results for all 3116 test messages. We use this list to compute accuracies and compare overall classification performance of our trees using each input parameter configuration set.
 
-Prediction accuracies for each parameter combination are calculated next. This is done by processing our list of results and creating a new accuracy column in our previous parameter combination dataframe. The top 10 most accurate combinations are presented in the table that follows.
+Prediction accuracies using each parameter combination are calculated next. This is done by processing our list of results and creating a new accuracy column in our previous parameter combination dataframe. The top 10 most accurate combinations are presented in the table that follows.
 
 ```{r warning=FALSE}
 spam = testDF$isSpam == "T"
@@ -139,7 +139,7 @@ maxAccuracy <- max(paramSampleddf$Accuracies)
 formattable(head(paramSampleddf[order(-paramSampleddf$Accuracies),],10))
 ```
 
-While this table is informative, the fact that we sampled the 1200 possible parameter combinations down to 240 makes it difficult to interpret with much granularity. For this reason, we take a novel approach to parameter assessment next. We've rendered the following scatterplot and correlation matrix comprised of rpart()/rpart.control() parameters and final accuracies to better assess performance. By visually treating accuracy as we would a response variable, and cp, minsplit, minbucket, and maxDepth as we would independent variables, we render the following scatterplot and correlation matrix.
+While this table is informative, the fact that we sampled our 1200 parameter combinations down to 240 makes it difficult to interpret with much granularity. For this reason, we take a novel approach to parameter assessment next. We've rendered the following scatterplot and correlation matrix comprised of rpart()/rpart.control() parameters and final accuracies to better assess performance. By visually treating accuracy as we would a response variable, and cp, minsplit, minbucket, and maxDepth as we would independent variables, we are able to observe correlations between each parameter and model accuracy.
 
 ```{r warning=FALSE}
 res <- cor(paramSampleddf)
@@ -148,20 +148,19 @@ chart.Correlation(paramSampleddf, histogram=TRUE, pch=19)
 
 ```
 
-Each dot represents.....will continue Tuesday
+In our above scatterplot and correlation matrix, the distribution of each rpart() or rpart.control() parameter is shown along the diagonal. Reviewing these histogram distributions reveals that a mostly even distribution of parameter values made it into the 240 configuration samples. This suggests we are assessing a wide range of model accuracy outcomes based on parameter selection.
 
-Notes for interpretation:
-In the above plot:
+Further supporting this argument, the bottom-left scatterplots depict bivariate relationships among the parameter values. A rolling fit line is also provided in these plots, but like the general bivariate relationships among parameters, we only care about the fit line trend for the bottom row where parameters are compared against accuracy.
 
-* The distribution of each variable is shown on the diagonal.
-* On the bottom of the diagonal : the bivariate scatter plots with a fitted line are displayed
-* On the top of the diagonal : the value of the correlation plus the significance level as stars
-* Each significance level is associated to a symbol : p-values(0, 0.001, 0.01, 0.05, 0.1, 1) <=> symbols("***", "**", "*", ".", " ")
+In the top-right cells, bivariate correlations are provided (Pearson's R values). Similarly, relationship significance levels are indicated by stars. Three stars represent a p-value less than 0.001; two stars, a p-value between 0.001 and 0.01; one star, a p-value between 0.01 and 0.05; and a period, a p-value between 0.05 and 0.1. Again, these values are only important when comparing parameters against accuracy. So in this case, only the values in the rightmost column are relevant to us.
 
+Based on these matrix descriptions, we can quickly determine that accuracy decreases slightly as cp increases (weak negative correlation of -0.17), accuracy decreases more rapidly as either minsplit or minbucket increases (moderate negative correlation of -0.4 for each), and accuracy improves as maxDepth is increased (moderate positive correlation of 0.51). Reviewing the scatterplots and fit lines, we discern that while cp, minsplit, and minbucket relationships to accuracy are relatively linear, maxDepth is not. In contrast, it portrays a change in trend around a maxDepth value of 14. Prior to this value, accuracy rapidly improves as maxDepth increases, but after this value, improvement to accuracy is virtually non-existant. Therefore, a maxDepth of 14 seems to be the point after which we see diminishing returns when increasing our maxDepth value.
+
+Based on these evaluations, it is clear why a cp value of 0.00001, minsplit of 2, minbucket of 1, and maxDepth of 21 produced the most accurate model. The smallest cp, minsplit, and minbucket values, and larger maxDepth values produce the best results. Granted, our accuracy would have been relatively the same had we had a maxDepth value of 14; again, we only sampled 240 parameter configurations among our original 1200. Based on our discussions in the *rpart.control Parameter Research* section, the new trees generated using these input parameters make sense.
 
 ### Comparison to Default Results
 
-````r (maxAccuracy-defaultAccuracy)*100````% increase in accuracy
+Finally, with our best tree parameter combination identified above, we may compare performance against this case study's original tree's accuracy (````r defaultAccuracy*100````%). The original tree was configured with default parameters as depicted in the following code chunk. By implementing our tuned partitioning tree, we are able to gain an accuracy improvement of ````r (maxAccuracy-defaultAccuracy)*100````%. Given the minimal effort required to tune our model with these parameters alone, this is a satisfactory improvement indeed.
 
 ```{r}
 #code here to run defaults
@@ -173,9 +172,7 @@ defaultResults <- predict(rpartObj,
         type = "class")
 
 xtab <- table(unlist(defaultResults), spam)
-#print(xtab)
 defaultAccuracy<-sum(diag(xtab))/sum(xtab)
-#print(defaultAccuracy)
 ```
 
 

@@ -36,23 +36,7 @@ The steps used for this analysis were: 1) ; 2) ; 3) ; 4) ...
 
 ### Data Acquisition
 ```{r echo=FALSE, message=FALSE, warning = FALSE}
-####Load Libraries
-library(ggplot2)
-library(plotly)
-library(plyr)
-library(grid)
-library(gridExtra)
-library(formattable)
-library(spam)
-library(RColorBrewer)
-library(rpart)
-library(dplyr)
-library(corrplot)
-library(PerformanceAnalytics)
-library(rpart.plot)
-library(rpart)
-library(RColorBrewer)
-library(tm)
+# Load Libraries
 library(scatterplot3d)
 ```
 

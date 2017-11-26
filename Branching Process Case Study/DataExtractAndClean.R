@@ -549,31 +549,31 @@ MCBA = function(params, repeats = 5, mG = 10, mO = 1000){
     mcResults
 }
 
-trialKappas = c(0.1, 10, 0.1, 10)
-trialLambdas = c(0.1, 0.1, 10, 10)
-trialParams = matrix(c(trialLambdas, trialKappas), ncol = 2)
-mcTrialOutput = MCBA(params = trialParams, repeats = 100, 
-                     mG = 200, mO = 100000)
-
-#save(mcTrialOutput, file = "mcTrialOutput.rda")
-
-#pdf("BA_ScatterPlotNumGenByNumKids.pdf", width = 10, height = 8)
-
-oldPar = par(mfrow = c(2, 2), mar = c(3,3,1,1))
-
-mapply(function(oneSet, lambda, kappa) {
-    plot(x = oneSet[2,], y = jitter(oneSet[1, ], 1), log = "x",
-         ylim = c(1,20), xlim = c(1, 10^7), pch = 19, cex = 0.6)
-    text(x = 50, y = 15, bquote(paste(lambda == .(lambda))) )
-    text(x = 300, y = 15, bquote(paste(kappa == .(kappa))) )
-}, 
-mcTrialOutput, lambda = trialLambdas, kappa = trialKappas)
-
-par(oldPar)
-
-#dev.off()
-
-lambdas = c(seq(0.1, 0.6, by = 0.1), seq(0.8, 2, by = 0.2), 
+# trialKappas = c(0.1, 10, 0.1, 10)
+# trialLambdas = c(0.1, 0.1, 10, 10)
+# trialParams = matrix(c(trialLambdas, trialKappas), ncol = 2)
+# mcTrialOutput = MCBA(params = trialParams, repeats = 100, 
+#                      mG = 200, mO = 100000)
+# 
+# #save(mcTrialOutput, file = "mcTrialOutput.rda")
+# 
+# #pdf("BA_ScatterPlotNumGenByNumKids.pdf", width = 10, height = 8)
+# 
+# oldPar = par(mfrow = c(2, 2), mar = c(3,3,1,1))
+# 
+# mapply(function(oneSet, lambda, kappa) {
+#     plot(x = oneSet[2,], y = jitter(oneSet[1, ], 1), log = "x",
+#          ylim = c(1,20), xlim = c(1, 10^7), pch = 19, cex = 0.6)
+#     text(x = 50, y = 15, bquote(paste(lambda == .(lambda))) )
+#     text(x = 300, y = 15, bquote(paste(kappa == .(kappa))) )
+# }, 
+# mcTrialOutput, lambda = trialLambdas, kappa = trialKappas)
+# 
+# par(oldPar)
+# 
+# #dev.off()
+# 
+lambdas = c(seq(0.1, 0.6, by = 0.1), seq(0.8, 2, by = 0.2),
             seq(2.25, 3, by = 0.25))
 kappas = c(lambdas, 3.25, 3.50, 3.75, 4.00, 4.50, 5.00)
 
@@ -581,67 +581,67 @@ paramGrid = as.matrix(expand.grid(lambdas, kappas))
 
 #pdf("BA_Scatterplot3Dkids.pdf", width = 7, height = 6)
 
-mcGrid = MCBA(params = paramGrid, repeats = 400, mG = 20,
-              mO = 1000)
+# mcGrid = MCBA(params = paramGrid, repeats = 400, mG = 20,
+#               mO = 1000)
+# 
+# saveRDS(mcGrid, "mcGridOutput.rds")
 
-#save(mcGrid, file = "mcGridOutput.rda")
-
-logUQkids = sapply(mcGrid, function(x) 
-    log(quantile(x[2, ], probs = 0.75), base = 10))
-
-UQCut = cut(logUQkids, breaks = c(-0.1, 0.5, 2, max(logUQkids)) )
-color3 = c("#b3cde3aa", "#8856a7aa", "#810f7caa")
-colors = color3[UQCut]
-
-library(scatterplot3d)
-sdp = scatterplot3d(x = paramGrid[ , 1], y = paramGrid[ , 2], 
-                    z = logUQkids, pch = 15, color = colors,
-                    xlab = "Lambda", ylab = "Kappa",
-                    zlab = "Upper Quartile Offspring",
-                    angle = 120, type="h")
-
-legend("left", inset = .08, bty = "n", cex = 0.8,
-       legend = c("[0, 0.5)", "[0.5, 2)", "[2, 5)"), 
-       fill = color3)
-
-#dev.off()
-
-#pdf("BA_ImageMapAlive.pdf", width = 7, height = 7)
-oldPar  = par(mar = c(4.1, 4.1, 0.5, 0.5))
-
-mcGridAlive = sapply(mcGrid, function(oneParamSet) {
-    sum((oneParamSet[1,] == 20) | (oneParamSet[2,] > 1000)) / 
-        length(oneParamSet[2,]) })
-
-filled.contour(lambdas, kappas, 
-               matrix(mcGridAlive, nrow = length(lambdas), 
-                      ncol = length(kappas)), 
-               xlab = "Lambda", ylab = "Kappa", 
-               xlim = c(0.1, 3), ylim = c(0.1, 3.1)) 
-
-par(oldPar)
-#dev.off()
-
-#pdf("BA_ImageMapAtleast20Kids.pdf", width = 7, height = 7)
-oldPar  = par(mar = c(4.1, 4.1, 2, 1))
-
-mcGridProp20kids = sapply(mcGrid, function(oneParamSet) {
-    sum(oneParamSet[2,] > 19) / length(oneParamSet[2,]) })
-
-mcGridProp20kidsMat = matrix(mcGridProp20kids, 
-                             nrow = length(lambdas), 
-                             ncol = length(kappas))
-
-breaks = c(0, 0.10, 0.2, 0.3, 0.5, 0.7, 0.9, 1)
-colors = rev(rainbow(10))[-(1:3)]
-
-image(lambdas, kappas, mcGridProp20kidsMat, col = colors,
-      breaks = breaks, xlab = "Lambda", ylab = "Kappa", 
-      xlim = c(0.05, 3.05), ylim = c(0.05, 3.05))
-
-midBreaks = (breaks[ -8 ] + breaks[ -1 ]) / 2
-legend(x = 0.1, y = 3.25, legend = midBreaks, fill = cols, 
-       bty = "n", ncol = 7,  xpd = TRUE)
-
-par(oldPar)
-#dev.off()
+# logUQkids = sapply(mcGrid, function(x) 
+#     log(quantile(x[2, ], probs = 0.75), base = 10))
+# 
+# UQCut = cut(logUQkids, breaks = c(-0.1, 0.5, 2, max(logUQkids)) )
+# color3 = c("#b3cde3aa", "#8856a7aa", "#810f7caa")
+# colors = color3[UQCut]
+# 
+# library(scatterplot3d)
+# sdp = scatterplot3d(x = paramGrid[ , 1], y = paramGrid[ , 2], 
+#                     z = logUQkids, pch = 15, color = colors,
+#                     xlab = "Lambda", ylab = "Kappa",
+#                     zlab = "Upper Quartile Offspring",
+#                     angle = 120, type="h")
+# 
+# legend("left", inset = .08, bty = "n", cex = 0.8,
+#        legend = c("[0, 0.5)", "[0.5, 2)", "[2, 5)"), 
+#        fill = color3)
+# 
+# #dev.off()
+# 
+# #pdf("BA_ImageMapAlive.pdf", width = 7, height = 7)
+# oldPar  = par(mar = c(4.1, 4.1, 0.5, 0.5))
+# 
+# mcGridAlive = sapply(mcGrid, function(oneParamSet) {
+#     sum((oneParamSet[1,] == 20) | (oneParamSet[2,] > 1000)) / 
+#         length(oneParamSet[2,]) })
+# 
+# filled.contour(lambdas, kappas, 
+#                matrix(mcGridAlive, nrow = length(lambdas), 
+#                       ncol = length(kappas)), 
+#                xlab = "Lambda", ylab = "Kappa", 
+#                xlim = c(0.1, 3), ylim = c(0.1, 3.1)) 
+# 
+# par(oldPar)
+# #dev.off()
+# 
+# #pdf("BA_ImageMapAtleast20Kids.pdf", width = 7, height = 7)
+# oldPar  = par(mar = c(4.1, 4.1, 2, 1))
+# 
+# mcGridProp20kids = sapply(mcGrid, function(oneParamSet) {
+#     sum(oneParamSet[2,] > 19) / length(oneParamSet[2,]) })
+# 
+# mcGridProp20kidsMat = matrix(mcGridProp20kids, 
+#                              nrow = length(lambdas), 
+#                              ncol = length(kappas))
+# 
+# breaks = c(0, 0.10, 0.2, 0.3, 0.5, 0.7, 0.9, 1)
+# colors = rev(rainbow(10))[-(1:3)]
+# 
+# image(lambdas, kappas, mcGridProp20kidsMat, col = colors,
+#       breaks = breaks, xlab = "Lambda", ylab = "Kappa", 
+#       xlim = c(0.05, 3.05), ylim = c(0.05, 3.05))
+# 
+# midBreaks = (breaks[ -8 ] + breaks[ -1 ]) / 2
+# legend(x = 0.1, y = 3.25, legend = midBreaks, fill = colors, 
+#        bty = "n", ncol = 7,  xpd = TRUE)
+# 
+# par(oldPar)
+# #dev.off()

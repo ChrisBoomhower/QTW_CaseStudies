@@ -48,6 +48,7 @@ library(rpart.plot)
 library(rpart)
 library(RColorBrewer)
 library(tm)
+library(scatterplot3d)
 ```
 
 
@@ -56,6 +57,67 @@ library(tm)
 source('DataExtractAndClean.R', echo = FALSE)
 ```
 
+```{r}
+# To load the original simulation results, use readRDS() as follows
+orig.mcGrid = readRDS("mcGridOutput.rds")
+
+# Following code was commented from DataExtractAndClean.R but pasted below for modification/use in notebook comparisons
+logUQkids = sapply(orig.mcGrid, function(x) 
+    log(quantile(x[2, ], probs = 0.75), base = 10))
+
+UQCut = cut(logUQkids, breaks = c(-0.1, 0.5, 2, max(logUQkids)) )
+color3 = c("#b3cde3aa", "#8856a7aa", "#810f7caa")
+colors = color3[UQCut]
+
+#3Dscatter
+sdp = scatterplot3d(x = paramGrid[ , 1], y = paramGrid[ , 2], 
+                    z = logUQkids, pch = 15, color = colors,
+                    xlab = "Lambda", ylab = "Kappa",
+                    zlab = "Upper Quartile Offspring",
+                    angle = 120, type="h")
+
+legend("left", inset = .08, bty = "n", cex = 0.8,
+       legend = c("[0, 0.5)", "[0.5, 2)", "[2, 5)"), 
+       fill = color3)
+
+#BA_ImageMapAlive
+oldPar  = par(mar = c(4.1, 4.1, 0.5, 0.5))
+
+mcGridAlive = sapply(orig.mcGrid, function(oneParamSet) {
+    sum((oneParamSet[1,] == 20) | (oneParamSet[2,] > 1000)) / 
+        length(oneParamSet[2,]) })
+
+filled.contour(lambdas, kappas, 
+               matrix(mcGridAlive, nrow = length(lambdas), 
+                      ncol = length(kappas)), 
+               xlab = "Lambda", ylab = "Kappa", 
+               xlim = c(0.1, 3), ylim = c(0.1, 3.1)) 
+
+par(oldPar)
+
+#BA_ImageMapAtleast20Kids
+oldPar  = par(mar = c(4.1, 4.1, 2, 1))
+
+mcGridProp20kids = sapply(orig.mcGrid, function(oneParamSet) {
+    sum(oneParamSet[2,] > 19) / length(oneParamSet[2,]) })
+
+mcGridProp20kidsMat = matrix(mcGridProp20kids, 
+                             nrow = length(lambdas), 
+                             ncol = length(kappas))
+
+breaks = c(0, 0.10, 0.2, 0.3, 0.5, 0.7, 0.9, 1)
+colors = rev(rainbow(10))[-(1:3)]
+
+image(lambdas, kappas, mcGridProp20kidsMat, col = colors,
+      breaks = breaks, xlab = "Lambda", ylab = "Kappa", 
+      xlim = c(0.05, 3.05), ylim = c(0.05, 3.05))
+
+midBreaks = (breaks[ -8 ] + breaks[ -1 ]) / 2
+par(xpd=TRUE)
+legend(x = 0.1, y = 3.25, legend = midBreaks, fill = colors, bty = "n", ncol = 7)
+
+par(oldPar)
+```
 
 
 ## Discussion and Future Works 

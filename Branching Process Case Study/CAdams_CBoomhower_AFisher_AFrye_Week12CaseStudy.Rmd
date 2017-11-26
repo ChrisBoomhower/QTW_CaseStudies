@@ -13,13 +13,18 @@ output: html_notebook
 ## Abstract
 
 
-
 ## Introduction
+In this case study, we are studying how programs/jobs running on a CPU, or multiple CPUs in parallel, behave. Multiple CPUs running in parallel, known as parallel computing, enable us to break up programs into smaller portions that can run simultaneously on different CPUs. Specifically, we investigate the distribution of the completion time for the entire system to determine which combinations of job creation and job completion rates leads to processes that either never complete or definitely complete in finite time. 
 
+To do this, we carry out a simulation study for the purpose of seeing if re-parameterization is appropriate. The branching process we investigate encompasses the same characteristics of the Aldous and Krebs process [3]. During the lifetime of a program/job, the number of births a job has is assumed to be from a Poisson distribution with expected count lambda. Also, the life length of each job is assumed to be from an exponential distribution with expected life length of 1/kappa. Lastly, each job can immediately start creating, or birthing, new jobs as soon as the job is generated, but the offspring/children cannot begin running until their parent finishes. The Monte Carlo method is used to simulate the process with different values for each job's expected lifetime (1/kappa) and number of jobs created per unit of time (lambda). 
 
 
 ## Background
+John Tsitsiklis, Christos Papadimitriou, and Pierre Humblet studied how the systems of interdependent jobs behave in their study entitled “The Performance of a Precedence-Based Queuing Discipline” published in the Journal of the Association for Computing Machinery. In this paper, Tsitsiklis et. al. focused on finding the distribution of the length of time that a computational process, including all of its subtasks, takes to complete [2]. The overarching goal was to aid developers in designing code that could run efficiently while in parallel or queuing systems that could manage jobs on a compute cluster. To do this, a probability model was proposed for the generation of jobs and their associated interdependencies; however, using this system to answer questions of interest proved too challenging and mathematically difficult. 
 
+David Aldous and William Krebs sought to overcome these issues via the use of a slightly different branching process, named the Aldous and Krebs process [3]. The Aldous and Krebs process is one in which: (1) the first job creates other jobs with time between start of jobs that is both independent and identically distributed, (2) the subsequent jobs generated must all wait until their parent program completes before they can actually run, and (3) each job can produce additional jobs of its own as soon as it is created so that it is not required to wait to start running before it can create another job. Through the study of this process, Aldous and Krebs were able to use mathematics to find analytic solutions to features of this process, just as Tsitsiklis et. al. had done. 
+
+Tsitsiklis et. al. and Aldous and Krebs derived these solutions by studying ways to simplify more complex problems. Another way to do this would be via the use of simulations in place of or in addition to these closed-form analytic solutions because they may be overly cumbersome to solve mathematically. Simulations can also be useful for providing insight when we want to study the behavior of a process, but the assumed behavior is violated. In other words, simulation studies aim to model random processes via the use of a computer to gain deeper insights about associated properties. For the purposes of this study, the Monte Carlo method is used for simulation. 
 
 
 ## Methods
@@ -126,4 +131,12 @@ par(oldPar)
 
 ## References
 [1] D. Lang and D. Nolan, Data Science in R: A Case Studies Approach to Computation Reasoning and Problem Solving. New York, New York: CRC Press. 
-[2] 
+
+[2] John Tsitsiklis, Christos Papadimitriou, and Pierre Humblet. The Performance of a
+Precedence-Based Queuing Discipline. Journal of the Association for Computing Machinery ,
+33:593–602, 1986.
+
+[3] David Aldous and William Krebs. The ‘Birth-and-Assassination’ Process. Statistics and
+Probability Letters, 10:427–430, 1990.
+
+[4] 

@@ -1,0 +1,67 @@
+---
+title: "Simulation Study of a Branching Process - Case Study Unit 12"
+output: html_notebook
+---
+
+
+####Cory Adams, Chris Boomhower, Alexandra Fisher, Alex Frye
+####MSDS 7333, November 26, 2017
+
+***NOTE: We are answering Q.10 from the Data Science in R textbook (Pg. 307): "Carry out a simulation study to see if the re-parameterization suggested in Section 7.9.1 is appropriate. For example, fix kappa to be 1, and run the simulation for various values of lambda. Compare the results to other simulations where kappa is c not equal to 1, but the ratio of lambda/c matches one of the lambda values from the earlier simulation when kappa was 1."***
+
+
+## Abstract
+
+
+
+## Introduction
+
+
+
+## Background
+
+
+
+## Methods
+The steps used for this analysis were: 1) ; 2) ; 3) ; 4) ...
+
+*Note that code used includes modified versions of R code function examples found in Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving, Chapter 7, pages 277-306 [1].*
+
+## Results
+
+### Data Acquisition
+```{r echo=FALSE, message=FALSE, warning = FALSE}
+####Load Libraries
+library(ggplot2)
+library(plotly)
+library(plyr)
+library(grid)
+library(gridExtra)
+library(formattable)
+library(spam)
+library(RColorBrewer)
+library(rpart)
+library(dplyr)
+library(corrplot)
+library(PerformanceAnalytics)
+library(rpart.plot)
+library(rpart)
+library(RColorBrewer)
+library(tm)
+```
+
+
+
+```{r include=FALSE, cache=TRUE, echo = FALSE, warning=FALSE}
+source('DataExtractAndClean.R', echo = FALSE)
+```
+
+
+
+## Discussion and Future Works 
+
+
+
+## References
+[1] D. Lang and D. Nolan, Data Science in R: A Case Studies Approach to Computation Reasoning and Problem Solving. New York, New York: CRC Press. 
+[2] 

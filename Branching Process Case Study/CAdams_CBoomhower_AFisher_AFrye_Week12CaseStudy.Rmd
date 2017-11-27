@@ -80,7 +80,13 @@ print(new.lambdas/new.kappas)
 new.paramGrid = as.matrix(cbind(new.lambdas, new.kappas))
 print(new.paramGrid)
 
-new.mcGrid = MCBA(params = new.paramGrid, repeats = 400, mG = 20, mO = 1000)
+if (!file.exists("newmcGridOutput.rds")){
+  new.mcGrid = MCBA(params = new.paramGrid, repeats = 400, mG = 20, mO = 1000)
+  saveRDS(new.mcGrid, "newmcGridOutput.rds")
+}else{
+  new.mcGrid = readRDS("newmcGridOutput.rds") 
+}
+
 ```
 
 ```{r}

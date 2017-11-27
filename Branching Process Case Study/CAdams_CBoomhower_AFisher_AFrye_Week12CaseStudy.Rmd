@@ -7,7 +7,7 @@ output: html_notebook
 * **Abstract, Background, Methods - Fisher**
 * **Data Acquisition - Chris**
 * **Define and Execute Test Simulations - Chris**
-* **Analysis of Results (barplots) - Cory**
+* **Analysis of Results (barplots) - Cory (Barplots look the same, and though many values are equal, they are different as they are designed to show different relationships based on generations and offspring. Alex will discuss the similarities and differences between each bar plot's values in his dumbbell plot section. You should interpret the plots at face value and reference Section 7.9.1 for guidance on interpretations. Please reach out on Slack with questions.)**
 * **Analysis of Results (dumbbell plot [or table]) - Frye**
 * **Discussion and Future Works - Fisher**
 
@@ -146,13 +146,44 @@ plot(mcGridProp20kids.plot)
 ```{r}
 mcGridAlive = sapply(new.mcGrid, function(oneParamSet) {
   sum((oneParamSet[1,] == 20) | (oneParamSet[2,] > 1000)) })
+mcGridAlive = as.numeric(as.character(mcGridAlive))
+
 
 mcGridProp20kids = sapply(new.mcGrid, function(oneParamSet) {
   sum(oneParamSet[2,] > 19)})
+mcGridProp20kids = as.numeric(as.character(mcGridProp20kids))
 
-config.delta <- (mcGridAlive-mcGridProp20kids)
-formattable(as.data.frame(cbind(test.names, mcGridAlive, mcGridProp20kids, config.delta)))
+
+df <- data.frame(test.names, mcGridAlive, mcGridProp20kids)
+
+df$diff <- sprintf("+%d", as.numeric(mcGridProp20kids-mcGridAlive))
+formattable(df)
+
+
+gg <- ggplot()
+# doing this vs y axis major grid line
+gg <- gg + geom_segment(data=df, aes(y=test.names, yend=test.names, x=-1, xend=300), color="#b2b2b2", size=0.15)
+# dum.dum.dum!bell
+gg <- gg + geom_dumbbell(data=df, aes(y=test.names, x=mcGridAlive, xend=mcGridProp20kids),
+                         size=1.5, color="#b2b2b2", point.size.l=3, point.size.r=3,
+                         point.colour.l="#9fb059", point.colour.r="#edae52")
+
+# text above points
+gg <- gg + geom_text(data=df, aes(x=mcGridAlive, y=test.names, label=mcGridAlive), fontface="bold",
+                     color="#9fb059", size=2.75, vjust=1)
+gg <- gg + geom_text(data=df, color="#edae52", size=2.75, vjust=1,
+                     aes(x=mcGridProp20kids, y=test.names, label=mcGridProp20kids), fontface="bold")
+
+gg <- gg + scale_y_discrete(limits=df$test.names)
+
+# difference column
+gg <- gg + geom_text(data=df, aes(label=diff, y=test.names, x=305), fontface="bold", size=3)
+
+gg <- gg + labs(title="Number of matching Replicates Within Each Test")
+gg
 ```
+
+
 
 ## Discussion and Future Works 
 

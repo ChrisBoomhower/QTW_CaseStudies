@@ -40,6 +40,8 @@ The steps used for this analysis were: 1) ; 2) ; 3) ; 4) ...
 library(scatterplot3d)
 library(formattable)
 library(ggplot2)
+library(ggalt)
+library(plotly)
 library(stringr)
 ```
 
@@ -169,6 +171,7 @@ imageMapAlive(orig.mcGrid, "Contour Plot - Original Parameter Grid Simulation")
 imageMap20Kids(orig.mcGrid, "Rainbow Contour Plot - Original Parameter Grid Simulation")
 ```
 
+
 ```{r}
 mcGridAlive = sapply(new.mcGrid, function(oneParamSet) {
         sum((oneParamSet[1,] == 20) | (oneParamSet[2,] > 1000)) / 
@@ -177,13 +180,18 @@ mcGridAlive = sapply(new.mcGrid, function(oneParamSet) {
 ratio.groups <- rep(1:10, each = 3)
 ratio.groups <- str_pad(ratio.groups, 2, pad = "0")
 test.names <- paste(new.lambdas, "/", new.kappas)
-mcGridAlive.df <- as.data.frame(cbind(new.lambdas, new.kappas, test.names, mcGridAlive, ratio.groups))
+mcGridAlive.df <- as.data.frame(cbind(new.lambdas, new.kappas, test.names, new.ratio, mcGridAlive,
+                                      ratio.groups))
 
-ggplot(data=mcGridAlive.df, aes(x=ratio.groups, y=mcGridAlive, fill=ratio.groups, group=test.names)) +
-    geom_bar(stat="identity", position=position_dodge(), color="black") +
+mcGridAlive.plot <- ggplot(data=mcGridAlive.df, aes(x=test.names, y=mcGridAlive, fill=ratio.groups,
+                                                    group=test.names)) +
+    scale_x_discrete(limits=mcGridAlive.df$test.names) +
+    geom_bar(stat="identity", position=position_dodge()) +
     labs(title = "Simulation Groups' Family Proportions Containing 20 Generations or 1000+ Offspring ",
-         x = "Parameter Simulation Groups", y = "Proportion") +
-    theme(plot.title = element_text(size = 10))
+         x = "Test Names Ordered by Parameter Simulation Groups", y = "Proportion") +
+    theme(plot.title = element_text(size = 10), axis.text.x = element_text(angle = 90), legend.title = element_text(size = 10))
+
+ggplotly(mcGridAlive.plot)
 ```
 
 
@@ -194,13 +202,61 @@ mcGridProp20kids = sapply(new.mcGrid, function(oneParamSet) {
 ratio.groups <- rep(1:10, each = 3)
 ratio.groups <- str_pad(ratio.groups, 2, pad = "0")
 test.names <- paste(new.lambdas, "/", new.kappas)
-mcGridProp20kids.df <- as.data.frame(cbind(new.lambdas, new.kappas, test.names, mcGridProp20kids, ratio.groups))
+mcGridProp20kids.df <- as.data.frame(cbind(new.lambdas, new.kappas, test.names, new.ratio, mcGridProp20kids,
+                                      ratio.groups))
 
-ggplot(data=mcGridProp20kids.df, aes(x=ratio.groups, y=mcGridProp20kids, fill=ratio.groups, group=test.names)) +
-    geom_bar(stat="identity", position=position_dodge(), color="black") +
-    labs(title = "Simulation Groups' Family Proportions Containing 20+ Offspring ",
-         x = "Parameter Simulation Groups", y = "Proportion") +
-    theme(plot.title = element_text(size = 13))
+mcGridProp20kids.plot <- ggplot(data=mcGridProp20kids.df, aes(x=test.names, y=mcGridProp20kids, fill=ratio.groups,
+                                                    group=test.names)) +
+    scale_x_discrete(limits=mcGridProp20kids.df$test.names) +
+    geom_bar(stat="identity", position=position_dodge()) +
+    labs(title = "Simulation Groups' Family Proportions Containing 20 Offspring ",
+         x = "Test Names Ordered by Parameter Simulation Groups", y = "Proportion") +
+    theme(plot.title = element_text(size = 10), axis.text.x = element_text(angle = 90), legend.title = element_text(size = 10))
+
+ggplotly(mcGridProp20kids.plot)
+```
+
+```{r}
+mcGridAlive = sapply(new.mcGrid, function(oneParamSet) {
+  sum((oneParamSet[1,] == 20) | (oneParamSet[2,] > 1000)) })
+
+mcGridProp20kids = sapply(new.mcGrid, function(oneParamSet) {
+  sum(oneParamSet[2,] > 19)})
+
+dumbell.df <- as.data.frame(cbind(test.names, mcGridAlive, mcGridProp20kids))
+
+# plot_ly(dumbell.df, color = I("gray80")) %>%
+#   add_segments(x = ~mcGridAlive, xend = ~mcGridProp20kids, y = ~test.names, yend = ~test.names, showlegend = FALSE) %>%
+#   add_markers(x = ~mcGridAlive, y = ~test.names, name = "mcGridAlive", color = I("pink")) %>%
+#   add_markers(x = ~mcGridProp20kids, y = ~test.names, name = "mcGridProp20kids", color = I("blue")) %>%
+#   layout(
+#     title = "Gender earnings disparity",
+#     xaxis = list(title = "Annual Salary (in thousands)"),
+#     margin = list(l = 65)
+#   )
+
+gg <- ggplot(dumbell.df, aes(x=mcGridAlive, xend=mcGridProp20kids, y=test.names, group=test.names)) +
+        scale_y_discrete(limits=mcGridProp20kids.df$test.names) +
+        geom_dumbbell(color="#a3c4dc", 
+                      size=0.75, 
+                      point.colour.l="#0e668b") + 
+        scale_x_discrete(label=mcGridProp20kids) + 
+        labs(x=NULL, 
+             y=NULL, 
+             title="Dumbbell Chart", 
+             subtitle="Pct Change: 2013 vs 2014", 
+             caption="Source: https://github.com/hrbrmstr/ggalt") +
+        theme(plot.title = element_text(hjust=0.5, face="bold"),
+              plot.background=element_rect(fill="#f7f7f7"),
+              panel.background=element_rect(fill="#f7f7f7"),
+              panel.grid.minor=element_blank(),
+              panel.grid.major.y=element_blank(),
+              panel.grid.major.x=element_line(),
+              axis.ticks=element_blank(),
+              legend.position="top",
+              panel.border=element_blank(),
+              axis.text.x = element_text(angle = 90))
+plot(gg)
 ```
 
 ## Discussion and Future Works 

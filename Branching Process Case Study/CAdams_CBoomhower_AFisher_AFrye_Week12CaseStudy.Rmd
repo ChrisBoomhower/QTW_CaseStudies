@@ -38,6 +38,7 @@ The steps used for this analysis were: 1) ; 2) ; 3) ; 4) ...
 ```{r echo=FALSE, message=FALSE, warning = FALSE}
 # Load Libraries
 library(scatterplot3d)
+library(formattable)
 ```
 
 
@@ -75,10 +76,11 @@ new.kappas = c(1, 5, 15,
                1, 0.2, 0.6, 
                1, 0.18, 0.54)
 
-print(new.lambdas/new.kappas)
+new.ratio = new.lambdas/new.kappas
 
 new.paramGrid = as.matrix(cbind(new.lambdas, new.kappas))
-print(new.paramGrid)
+
+formattable(as.data.frame(cbind(new.paramGrid,new.ratio)))
 
 if (!file.exists("newmcGridOutput.rds")){
   new.mcGrid = MCBA(params = new.paramGrid, repeats = 400, mG = 20, mO = 1000)

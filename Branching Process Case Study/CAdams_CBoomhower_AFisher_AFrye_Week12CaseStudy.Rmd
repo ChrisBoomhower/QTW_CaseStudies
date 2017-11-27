@@ -39,6 +39,8 @@ The steps used for this analysis were: 1) ; 2) ; 3) ; 4) ...
 # Load Libraries
 library(scatterplot3d)
 library(formattable)
+library(ggplot2)
+library(stringr)
 ```
 
 
@@ -167,6 +169,39 @@ imageMapAlive(orig.mcGrid, "Contour Plot - Original Parameter Grid Simulation")
 imageMap20Kids(orig.mcGrid, "Rainbow Contour Plot - Original Parameter Grid Simulation")
 ```
 
+```{r}
+mcGridAlive = sapply(new.mcGrid, function(oneParamSet) {
+        sum((oneParamSet[1,] == 20) | (oneParamSet[2,] > 1000)) / 
+            length(oneParamSet[2,]) })
+
+ratio.groups <- rep(1:10, each = 3)
+ratio.groups <- str_pad(ratio.groups, 2, pad = "0")
+test.names <- paste(new.lambdas, "/", new.kappas)
+mcGridAlive.df <- as.data.frame(cbind(new.lambdas, new.kappas, test.names, mcGridAlive, ratio.groups))
+
+ggplot(data=mcGridAlive.df, aes(x=ratio.groups, y=mcGridAlive, fill=ratio.groups, group=test.names)) +
+    geom_bar(stat="identity", position=position_dodge(), color="black") +
+    labs(title = "Simulation Groups' Family Proportions Containing 20 Generations or 1000+ Offspring ",
+         x = "Parameter Simulation Groups", y = "Proportion") +
+    theme(plot.title = element_text(size = 10))
+```
+
+
+```{r}
+mcGridProp20kids = sapply(new.mcGrid, function(oneParamSet) {
+    sum(oneParamSet[2,] > 19) / length(oneParamSet[2,]) })
+
+ratio.groups <- rep(1:10, each = 3)
+ratio.groups <- str_pad(ratio.groups, 2, pad = "0")
+test.names <- paste(new.lambdas, "/", new.kappas)
+mcGridProp20kids.df <- as.data.frame(cbind(new.lambdas, new.kappas, test.names, mcGridProp20kids, ratio.groups))
+
+ggplot(data=mcGridProp20kids.df, aes(x=ratio.groups, y=mcGridProp20kids, fill=ratio.groups, group=test.names)) +
+    geom_bar(stat="identity", position=position_dodge(), color="black") +
+    labs(title = "Simulation Groups' Family Proportions Containing 20+ Offspring ",
+         x = "Parameter Simulation Groups", y = "Proportion") +
+    theme(plot.title = element_text(size = 13))
+```
 
 ## Discussion and Future Works 
 

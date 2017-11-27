@@ -50,6 +50,18 @@ source('DataExtractAndClean.R', echo = FALSE)
 # To load the original simulation results, use readRDS() as follows
 orig.mcGrid = readRDS("mcGridOutput.rds")
 
+new.lambdas = c(seq(0.1, 0.6, by = 0.1), seq(0.8, 2, by = 0.2),
+            seq(2.25, 3, by = 0.25))
+
+new.kappas = c(lambdas, 3.25, 3.50, 3.75, 4.00, 4.50, 5.00)
+
+new.paramGrid = as.matrix(expand.grid(lambdas, kappas))
+
+new.mcGrid = MCBA(params = paramGrid, repeats = 400, mG = 20, mO = 1000)
+```
+
+```{r}
+
 # Following code was commented from DataExtractAndClean.R but pasted below for modification/use in notebook comparisons
 
 #3Dscatter

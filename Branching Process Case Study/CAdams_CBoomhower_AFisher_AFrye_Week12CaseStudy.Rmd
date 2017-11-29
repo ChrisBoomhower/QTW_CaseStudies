@@ -3,14 +3,6 @@ title: "Simulation Study of a Branching Process - Case Study Unit 12"
 output: html_notebook
 ---
 
-#ASSIGNMENTS
-* **Abstract, Background, Methods - Fisher**
-* **Data Acquisition - Chris**
-* **Define and Execute Test Simulations - Chris**
-* **Analysis of Results (barplots) - Cory (Barplots look the same, and though many values are equal, they are different as they are designed to show different relationships based on generations and offspring. Alex will discuss the similarities and differences between each bar plot's values in his dumbbell plot section. You should interpret the plots at face value and reference Section 7.9.1 for guidance on interpretations. Please reach out on Slack with questions.)**
-* **Analysis of Results (dumbbell plot [or table]) - Frye**
-* **Discussion and Future Works - Fisher**
-
 ####Cory Adams, Chris Boomhower, Alexandra Fisher, Alex Frye
 ####MSDS 7333, November 26, 2017
 
@@ -143,14 +135,15 @@ mcGridProp20kids.plot <- ggplot(data=mcGridProp20kids.df, aes(x=test.names, y=mc
                                                     group=test.names)) +
     scale_x_discrete(limits=mcGridProp20kids.df$test.names) +
     geom_bar(stat="identity", position=position_dodge(), color="black") +
-    labs(title = "Simulation Groups' Family Proportions Containing 20 Offspring ",
+    labs(title = "Simulation Groups' Family Proportions Containing 20+ Offspring ",
          x = "Test Names Ordered by Parameter Simulation Groups", y = "Proportion") +
     theme(plot.title = element_text(size = 13.5), axis.text.x = element_text(angle = 90), legend.title = element_text(size = 10))
 
 plot(mcGridProp20kids.plot)
 ```
 
-```{r}
+As may be seen from the above two bar charts, which are meant to identify two different segments of data within our simulations, there is not a visible difference in proportions between the two. To further explore this, we produce a dumbell plot depicting the raw "count" out of 400 replicates which meet each critera for our 30 parameter tests. With Green text depicting the count of replicas which meet "20 Generations or 1000+ Offspring" and Blue "20+ Offspring", there is large overlap in matching criteria. In the event the number of matching replicates does not equal one another, you will find a bar between the two colored points for the test. These dumbell bars provide a great visual insight into which tests accounted for variance, and when the tests stopped varying amongst these two criteria. With the exception of our first ratio group, given a zero count, we found that as the lambda/kappa ratio increased up to 0.7 (ratio group 03) the dumbells close off completely. From ratio group 04 onward, the results between the two comparing demographics merge and the gap in replicates with "= 20 generations or > 1000 offspring" and those ">=20 offspring" approaches zero.
+```{r warning = FALSE, message=FALSE}
 mcGridAlive = sapply(new.mcGrid, function(oneParamSet) {
   sum((oneParamSet[1,] == 20) | (oneParamSet[2,] > 1000)) })
 mcGridAlive = as.numeric(as.character(mcGridAlive))
@@ -177,8 +170,8 @@ gg <- gg + geom_dumbbell(data=df, aes(y=test.names, x=mcGridAlive, xend=mcGridPr
 
 # text above points
 gg <- gg + geom_text(data=df, aes(x=mcGridAlive, y=test.names, label=mcGridAlive), fontface="bold",
-                     color="#9fb059", size=2.75, vjust=1)
-gg <- gg + geom_text(data=df, color="#edae52", size=2.75, vjust=1,
+                     color="#008000", size=2.75, vjust=1)
+gg <- gg + geom_text(data=df, color="#0000ff", size=2.75, vjust=1,
                      aes(x=mcGridProp20kids, y=test.names, label=mcGridProp20kids), fontface="bold")
 
 gg <- gg + scale_y_discrete(limits=df$test.names)

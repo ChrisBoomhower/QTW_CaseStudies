@@ -35,9 +35,10 @@ Tsitsiklis et. al. and Aldous and Krebs derived these solutions by studying ways
 
 
 ## Methods
-The steps used for this analysis were: 1) ; 2) ; 3) ; 4) ...
+The steps used for this analysis were: 1) data acquisition; 2) defining and executing test simulations; 3) analysis of parameter results using bar plots; & 4) analysis of parameter results using dumbbell plot. 
 
 *Note that code used includes modified versions of R code function examples found in Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving, Chapter 7, pages 277-306 [1].*
+
 
 ## Results
 
@@ -204,5 +205,3 @@ Precedence-Based Queuing Discipline. Journal of the Association for Computing Ma
 
 [3] David Aldous and William Krebs. The ‘Birth-and-Assassination’ Process. Statistics and
 Probability Letters, 10:427–430, 1990.
-
-[4] 

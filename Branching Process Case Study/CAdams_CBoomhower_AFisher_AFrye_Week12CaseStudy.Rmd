@@ -101,6 +101,9 @@ if (!file.exists("newmcGridOutput.rds")){
 
 
 ### Analysis of Results
+
+We use the following code to provide a summary of our results. The output is a bar chart showing each combination of lamdba and kappa values, along with the ratio group they are assigned to. The y-axis show the proportion that contain 20 generations or have greater than 1000 offspring. There is a clear correlation between the ratio value and the proportion of families containing 20 generation or resulting in more than 1000 offspring. The greater the ratio, the greater the proportion.
+
 ```{r}
 mcGridAlive = sapply(new.mcGrid, function(oneParamSet) {
         sum((oneParamSet[1,] == 20) | (oneParamSet[2,] > 1000)) / 
@@ -121,6 +124,7 @@ mcGridAlive.plot <- ggplot(data=mcGridAlive.df, aes(x=test.names, y=mcGridAlive,
 plot(mcGridAlive.plot)
 ```
 
+Another test we used to measure the proportion of simulations with 20 or more offspring is shown below. The output is a bar chart showing each combination of lamdba and kappa values, the ratio group they are assigned to. The y-axis show the proportion that contain 20 or more offspring. There is a clear correlation between the ratio value and the proportion of families containing 20 or more offspring. The greater the ratio, the greater the proportion. While the bar charts look almost identical, they are using different as they show different relationships based on generations and offspring.
 
 ```{r}
 mcGridProp20kids = sapply(new.mcGrid, function(oneParamSet) {
